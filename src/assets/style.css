@@ -1,0 +1,220 @@
+@import url('https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Work Sans", sans-serif;
+}
+:root {
+    --gray0: #000;
+    --gray1: #3b3b3b;
+    --gray2: #696969;
+    --gray3: #969696;
+    --gray4: #c9c9c9;
+    --gray5: #ececec;
+    --red: red;
+    --lightblue: lightskyblue;
+    --cell: 32px;
+    --bar: 20px;
+
+}
+.debugA { border: 2px solid red; }
+.debugB { border: 2px solid green; }
+.debugC { border: 2px solid lightskyblue; }
+body{
+    background-color: var(--gray5);
+}
+header {
+    margin-top: 1rem;
+    width: 100%;
+}
+header > button {
+    margin-left: 2rem;
+}
+h1 {
+    /* text-transform: uppercase; */
+    color: var(--gray0);
+    white-space: nowrap;
+}
+.heavy { font-weight: 800; }
+.bold { font-weight: 500; }
+
+.text-lg { font-size: 6rem; }
+.text-md { font-size: 1.5rem; }
+.text-sm { font-size: 1.0rem; }
+.text { font-size: 1rem; }
+.ital { font-style: italic; }
+.redbkg{ background-color: var(--red);}
+.gray0{ color: var(--gray0); }
+.gray1{ color: var(--gray1); }
+.gray2{ color: var(--gray2); }
+.gray3{ color: var(--gray3); }
+.gray4{ color: var(--gray4); }
+.gray5{ color: var(--gray5); }
+.upper{ text-transform: uppercase;}
+.hidden { visibility: hidden;}
+.hidden-x { visibility: hidden;}
+
+.pad { padding: 0.2rem; }
+.row { height: var(--cell);}
+img{
+    width: auto;
+    height: 100%;
+}
+.flex-h-left {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+}
+.flex-h-left-top{
+    display: flex;
+    justify-content: start;
+    align-items: flex-start;
+}
+.flex-h-spread{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.flex-h-right{
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.5rem;
+}
+.section > h3 {
+    justify-self: flex-start;
+    flex-grow: 1;
+}
+.task > h3 {
+    justify-self: flex-start;
+    flex-grow: 1;
+}
+.icon-lg {
+    height: 5rem;
+    width: auto;
+}
+button { cursor: pointer; }
+.grab { cursor: grab; }
+.text-button {
+    outline: none;
+    border: none;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    background-color: transparent;
+}
+.img-button {
+    outline: none;
+    border: none;
+    padding-left: 0.1rem;
+    padding-right: 0.1rem;
+    background-color: transparent;
+}
+.div-button {
+    outline: none;
+    border: none;
+    background-color: transparent;
+}
+.circle-button {
+    /* margin: 0.2rem; */
+    border: 1px solid var(--gray0);
+    padding: 0.1rem;
+    border-radius: 50%;
+    aspect-ratio: 1;
+    height: 90%;
+    width: auto;
+}
+.left {
+    padding-left: 0.2rem;
+    width: max(500px, min(40vw, 700px));
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-auto-rows: var(--cell);
+}
+.ribbon {
+    padding-right: 0.5rem;
+}
+.row:hover {
+    .ribbon{
+        background-color: #fff;
+    }
+    .hidden {
+        visibility: visible;
+    }
+}
+.right {
+    width: 100%;
+    overflow: hidden;
+}
+.section{
+    width: 90%;
+}
+.task{
+    width: 90%;
+}
+.task > h3 {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.time {
+    width: 5rem;
+    text-align: right;
+}
+.color {
+    margin-left: 1rem;
+    aspect-ratio: 1;
+    /* width: 1rem; */
+    height: 1rem;
+    /* width: auto; */
+    outline: 1px solid var(--lightblue);
+    background-color: goldenrod;
+}
+.date {
+    height: var(--cell);
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: calc( var(--cell)*4*3) 1fr ;
+    /* grid-auto-columns: var(--cell); */
+    grid-auto-rows: var(--cell);
+    /* justify-content: center; */
+    align-items: center;
+    border: 1px solid green;
+}
+.hour {
+    height: var(--cell);
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: repeat( calc(36/4), calc( var(--cell) * 4) );
+    grid-auto-columns: var(--cell);
+    grid-auto-rows: var(--cell);
+    /* justify-content: center; */
+    align-items: center;
+    border: 1px solid salmon;
+     
+}
+.grid {
+    display: grid;
+    grid-template-columns: repeat(36, var(--cell));
+    grid-auto-columns: var(--cell);
+    grid-auto-rows: var(--cell);
+    /* justify-content: center; */
+    align-items: center;
+    border: 1px solid salmon;
+}
+.pan {
+    cursor: move;
+}
+#cell1{
+    grid-row: 2;
+    grid-column: 1 / span 4;
+    background-color: red;
+    height: var(--bar);
+}
+#cell2{
+    grid-row: 3;
+    grid-column: 2 / span 1;
+    background-color: blue;
+    height: var(--bar);
+}
