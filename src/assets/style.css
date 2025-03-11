@@ -153,7 +153,7 @@ button { cursor: pointer; }
 .task{
     width: 90%;
 }
-.task > h3 {
+.trunc {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -180,7 +180,7 @@ button { cursor: pointer; }
     grid-auto-rows: var(--cell);
     /* justify-content: center; */
     align-items: center;
-    border: 1px solid green;
+    /* border: 1px solid green; */
 }
 .hour {
     height: var(--cell);
@@ -191,7 +191,7 @@ button { cursor: pointer; }
     grid-auto-rows: var(--cell);
     /* justify-content: center; */
     align-items: center;
-    border: 1px solid salmon;
+    /* border: 1px solid salmon; */
      
 }
 .grid {
@@ -201,7 +201,7 @@ button { cursor: pointer; }
     grid-auto-rows: var(--cell);
     /* justify-content: center; */
     align-items: center;
-    border: 1px solid salmon;
+    /* border: 1px solid salmon; */
 }
 .pan {
     cursor: move;
