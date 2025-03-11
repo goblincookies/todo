@@ -38,7 +38,7 @@ class PageBuilder {
         //     <div class="right" id="right">
         //         <div class="date" id="date"> --- </div>
         //         <div class="hour" id="hour"> --- </div>
-        //         <div class="grid pan" id="cells"> --- </div>
+        //         <div class="grid pan" id="grid"> --- </div>
         //     </div>
         // </div>
 
@@ -63,6 +63,37 @@ class PageBuilder {
 
         return mainDiv;
     };
+
+    getHTML_Date( dateText ) {
+        // <h3 class="text-sm">MAR 8</h3>
+        const mainDiv = this.createElement("h3", "text-sm");
+        mainDiv.textContent = dateText;
+        return mainDiv;
+    }
+
+    getHTML_Hour( hourText ) {
+        // <h3 class="text-sm">21</h3>
+        const mainDiv = this.createElement("h3", "text-sm");
+        mainDiv.textContent = hourText;
+        return mainDiv;
+    }
+
+    getHTML_Bar( task ) {
+        if ( this.isNotTask( task ) ) { return 0; }
+        
+        // <div class="blank" id="bar-1"></div>
+        const mainDiv = this.createElement("div", "bar");
+        mainDiv.id = "bar-" + task.id;
+
+        // grid-row: 3;
+        // grid-column: 2 / span 1;
+        mainDiv.style.gridRow = (task.id + task.shift) - 2; // -1 hours, -2 dates
+        mainDiv.style.gridColumn = task.startTime + "/" + (task.startTime + task.duration);
+        mainDiv.style.backgroundColor = task.color;
+
+
+        return mainDiv;
+    }
 
     getHTML_Task( task ) {
         if ( this.isNotTask( task ) ) { return 0; }
@@ -111,6 +142,7 @@ class PageBuilder {
         // </div>
 
         const mainDiv = this.createElement("div", "row flex-h-spread");
+        mainDiv.style.gridRow = task.id + task.shift;
         const delButton = this.createElement("button", "circle-button redbkg hidden");
         const delImg = this.createElement("img", "", fileClose);
         delButton.appendChild( delImg );
@@ -137,6 +169,8 @@ class PageBuilder {
 
         
         const titleH3 = this.createElement("h3", "text-sm bold trunc");
+        if (task.isSection) { titleH3.classList.add("upper") };
+
         titleH3.textContent = task.title;
         const durationP = this.createElement("p", "time text-sm");
         durationP.textContent = task.duration;

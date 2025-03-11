@@ -13,7 +13,11 @@ class Task {
     #isSection = false;
     #isComplete = false;
     #title = "New Row Title";
-    #duration = 15;
+    #startTime = 3; //1-96 >> 0-24hrs * 4
+    #duration = 50;
+    #startDate = 0; // FORMALIZE LATER
+    #color = "#6da9bb";
+    #shift = 0;
     
     constructor () {
     };
@@ -30,11 +34,17 @@ class Task {
     set title (val) { if ( typeof val == 'string' ){  this.#title = val; }; };
     get title () { return this.#title; };
 
+    set startTime (val) { if ( typeof val == 'number' ){  this.#startTime = val; }; };
+    get startTime () { return this.#startTime; };
+
     set duration (val) { if ( typeof val == 'number' ){  this.#duration = val; }; };
     get duration () { return this.#duration; };
 
     set priority (val) { if (typeof val == 'number' ){  this.#priority = val; }; };
     get priority () { return this.#priority; };
+
+    set color (val) { if (typeof val == 'string' ){  this.#color = val; }; };
+    get color () { return this.#color; };
 
     recordTask( title, isComplete, priority ) {
         this.#title = title;
@@ -46,31 +56,46 @@ class Task {
 
 class Project {
     // keeps track of a list of tasks
-    #id = 0;
-    #database = {};
+    // #id = 1;
+    #shift = 3
+    #database = [];
 
     isNotTask( t ) {
         if ( t instanceof Task ) { return false; }
 
         console.log(`${typeof t } is not a Task Object`);
         return true;
+    };
+
+    deleteTask( id ) {
+
+        if (this.#database[id]) {
+            delete this.#database[id];
+
+            // RE ORDER THE TASKS
+
+            return 0;
+        };
+        // DOESN'T EXIST
+        console.log(`database can't find that book(${id}), maybe it's already deleted?`);
     }
+
     writeTask( task ) {
         if ( this.isNotTask(task) ) { return 0; }
-        if ( task.id < 0 ) {
-            this.#id += 1;
-            task.id = this.#id;
-        };
 
+        if ( task.id < 0 ) { task.id = this.#database.length; };
+        task.shift = this.#shift;
         console.log(`writing task to Project database, id ${ task.id }, ${ task.title } `);
         this.#database[ task.id ] = task;
-    }
+    };
+
     getTask( id ) {
-        if (this.#database[id]) { return this.#database[id] };
+        if (this.#database[ id - this.#shift ]) { return this.#database[ id - this.#shift ] };
         // DOESN'T EXIST
-        console.log(`database can't find task( ${id} ), sending a blank task`);
+        console.log(`database can't find task( ${id} / ( ${id - this.#shift } )), sending a blank task`);
         return new Task();
-    }
+    };
+
 }
 
 class Database {
