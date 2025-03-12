@@ -14,7 +14,7 @@
     --gray4: #c9c9c9;
     --gray5: #ececec;
     --red: red;
-    --red: #6da9bb;
+    /* --red: #6da9bb; */
 
     --lightblue: lightskyblue;
     --cell: 32px;
@@ -57,7 +57,7 @@ h1 {
 .upper{ text-transform: uppercase;}
 .hidden { visibility: hidden;}
 .hidden-x { visibility: hidden;}
-
+/* .crop { overflow: hidden;} */
 .pad { padding: 0.2rem; }
 .row { height: var(--cell);}
 img{
@@ -154,6 +154,8 @@ button { cursor: pointer; }
 .right {
     width: 100%;
     overflow: hidden;
+    background-color: var(--gray4);
+    position: relative;
 }
 .section{
     width: 90%;
@@ -213,6 +215,7 @@ button { cursor: pointer; }
     /* justify-content: center; */
     align-items: center;
     /* border: 1px solid salmon; */
+    /* transform: translateY(-); */
 }
 .pan {
     cursor: move;

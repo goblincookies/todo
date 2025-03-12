@@ -1,5 +1,5 @@
 import { Task } from "./DATAmanager";
-import fileClose from "../images/flag.svg";
+import fileClose from "../images/close.svg";
 import fileFlag from "../images/flag.svg";
 import fileDrag from "../images/drag.svg";
 
@@ -35,7 +35,7 @@ class PageBuilder {
 
          // <div class="flex-h-left-top debugB" id="block">
         //     <div class="left" id="left"> --- </div>
-        //     <div class="right" id="right">
+        //     <div class="right crop" id="right">
         //         <div class="date" id="date"> --- </div>
         //         <div class="hour" id="hour"> --- </div>
         //         <div class="grid pan" id="grid"> --- </div>
@@ -44,7 +44,7 @@ class PageBuilder {
 
         const mainDiv = this.createElement("div", "flex-h-left-top");
         const leftDiv = this.createElement("div", "left debugB");
-        const rightDiv = this.createElement("div", "right debugC");
+        const rightDiv = this.createElement("div", "right crop debugC");
         const dateDiv = this.createElement("div", "date");
         const hourDiv = this.createElement("div", "hour");
         const gridDiv = this.createElement("div", "grid pan");
