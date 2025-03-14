@@ -116,6 +116,7 @@ class PageBuilder {
         HTML.style.width = `${end-start}px`;
         // console.log(`transform should be: translateX( ${tS-gS}px)`);
         HTML.style.transform = `translateX( ${tS-gS}px)`;
+        HTML.classList.remove("hidden");
         return css;
     }
 

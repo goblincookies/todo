@@ -73,7 +73,7 @@ class Converter {
         // CHECKS IF BOTH START AND END ARE AFTER THE GRID
         let passRight = !(( tS > gE ) && ( tE > gE));
 
-        return (passLeft || passRight);
+        return (passLeft && passRight);
     }
 
     getGridColumn (task, gridStartColumn, gridCellCount ) {

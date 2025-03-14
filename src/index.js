@@ -62,8 +62,8 @@ function setup(){
 
     for (let i = 0; i < fakeTasks; i++) {
         let task = new Task();
-        task.startDate = taskStartDate; // + Math.floor( Math.random()*15 );
-        task.endDate = taskStartDate + 450; // * Math.floor( Math.random()*15 );
+        task.startDate = taskStartDate + Math.floor( Math.random()*200 );
+        task.endDate = taskStartDate + 450 + Math.floor( Math.random()*200 ); // * Math.floor( Math.random()*15 );
         task.title = task.startDate+"";
         project.writeTask( task );
 
