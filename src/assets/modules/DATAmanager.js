@@ -14,7 +14,7 @@ class Task {
     #isComplete = false;
     #title = "New Row Title";
     #startTime = 3; //1-96 >> 0-24hrs * 4
-    #duration = 50;
+    #duration = 15;
     #startDate = 0; // FORMALIZE LATER
     #color = "#6da9bb";
     #shift = 0;
@@ -34,7 +34,9 @@ class Task {
     set title (val) { if ( typeof val == 'string' ){  this.#title = val; }; };
     get title () { return this.#title; };
 
-    set startTime (val) { if ( typeof val == 'number' ){  this.#startTime = val; }; };
+    set startTime (val) { if ( typeof val == 'number' ){
+        console.log(`writing start time! time is ${val}`)
+        this.#startTime = val; }; };
     get startTime () { return this.#startTime; };
 
     set duration (val) { if ( typeof val == 'number' ){  this.#duration = val; }; };
@@ -50,6 +52,45 @@ class Task {
         this.#title = title;
         this.#isComplete = isComplete;
         this.#priority = priority;
+    };
+
+};
+
+class Converter {
+
+    clamp(value, min, max) {
+        return Math.max(min, Math.min(value, max));
+    };
+
+    inBounds( task, gridStartColumn, gridCellCount ) {
+
+        const Ts = task.startTime;
+        const Gs = gridStartColumn;
+        const Te = Ts + task.duration;
+        const Ge = gridStartColumn + gridCellCount;
+        // PASS LEFT
+        // CHECKS IF BOTH START AND END ARE BEFORE THE GRID
+        let passLeft = !(( Ts < Gs ) && ( Te < Gs));
+
+        // PASS RIGHT
+        // CHECKS IF BOTH START AND END ARE AFTER THE GRID
+        let passRight = !(( Ts > Ge ) && ( Te > Ge));
+
+        return (passLeft || passRight);
+    }
+
+    getGridColumn (task, gridStartColumn, gridCellCount ) {
+        let gridColumn = {start:0, span:0};
+
+        gridColumn.start = task.startTime - gridStartColumn;
+        gridColumn.span = ( gridColumn.start + task.duration );
+        // console.log(`grid span column before clamp: ${gridColumn.span} (${gridCellCount})`);
+        gridColumn.start = this.clamp( gridColumn.start, 1, gridStartColumn+ gridCellCount );
+        
+        gridColumn.span = this.clamp( gridColumn.span, 1, gridCellCount );
+        // console.log(`grid span column after clamp: ${gridColumn.span}`);
+
+        return gridColumn;
     };
 
 };
@@ -90,9 +131,9 @@ class Project {
     };
 
     getTask( id ) {
-        if (this.#database[ id - this.#shift ]) { return this.#database[ id - this.#shift ] };
+        if (this.#database[ id ]) { return this.#database[ id ] };
         // DOESN'T EXIST
-        console.log(`database can't find task( ${id} / ( ${id - this.#shift } )), sending a blank task`);
+        console.log(`database can't find task( ${id} / ( ${id} )), sending a blank task`);
         return new Task();
     };
 
@@ -122,4 +163,4 @@ class Database {
 // row.getHTML_flag();
 
 // Ribbon.getRowHTML();
-export { Task, Project, Database };
+export { Task, Project, Database, Converter };

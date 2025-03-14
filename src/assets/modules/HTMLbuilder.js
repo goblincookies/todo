@@ -1,4 +1,4 @@
-import { Task } from "./DATAmanager";
+import { Project, Task } from "./DATAmanager";
 import fileClose from "../images/close.svg";
 import fileFlag from "../images/flag.svg";
 import fileDrag from "../images/drag.svg";
@@ -45,9 +45,9 @@ class PageBuilder {
         const mainDiv = this.createElement("div", "flex-h-left-top");
         const leftDiv = this.createElement("div", "left debugB");
         const rightDiv = this.createElement("div", "right crop debugC");
-        const dateDiv = this.createElement("div", "date");
-        const hourDiv = this.createElement("div", "hour");
-        const gridDiv = this.createElement("div", "grid pan");
+        const dateDiv = this.createElement("div", "date oversize");
+        const hourDiv = this.createElement("div", "hour oversize");
+        const gridDiv = this.createElement("div", "grid pan oversize");
 
         leftDiv.id = "left";
         rightDiv.id = "right";
@@ -73,27 +73,39 @@ class PageBuilder {
 
     getHTML_Hour( hourText ) {
         // <h3 class="text-sm">21</h3>
-        const mainDiv = this.createElement("h3", "text-sm");
+        const mainDiv = this.createElement("h3", "hour text-sm");
         mainDiv.textContent = hourText;
         return mainDiv;
     }
 
-    getHTML_Bar( task ) {
+    getHTML_Bar( task, start, span ) {
         if ( this.isNotTask( task ) ) { return 0; }
         
-        // <div class="blank" id="bar-1"></div>
+        // <div class="bar" id="bar-1"></div>
         const mainDiv = this.createElement("div", "bar");
         mainDiv.id = "bar-" + task.id;
 
         // grid-row: 3;
         // grid-column: 2 / span 1;
         mainDiv.style.gridRow = (task.id + task.shift) - 2; // -1 hours, -2 dates
-        mainDiv.style.gridColumn = task.startTime + "/" + (task.startTime + task.duration);
+        mainDiv.style.gridColumn = `${start} / ${span}`;
         mainDiv.style.backgroundColor = task.color;
-
-
         return mainDiv;
-    }
+    };
+
+    updateHTML_Bar( HTML, start, span ) {
+        // <div class="bar" id="bar-1"></div>
+        // grid-row: 3;
+        // grid-column: 2 / span 1;
+        HTML.style.gridColumn = `${start} / ${span}`;
+        HTML.classList.remove("hidden");
+    };
+
+    hideHTML( HTML ) {
+        HTML.classList.add("hidden");
+    };
+
+    
 
     getHTML_Task( task ) {
         if ( this.isNotTask( task ) ) { return 0; }
@@ -148,7 +160,7 @@ class PageBuilder {
         delButton.appendChild( delImg );
 
         const taskDiv = this.createElement("div", "flex-h-right ribbon pad");
-        console.log(`checking task section: ${task.isSection}`);
+        // console.log(`checking task section: ${task.isSection}`);
         taskDiv.classList.add( ( (task.isSection) ? "section" : "task" ) );
 
         const dragButton = this.createElement("button", "img-button hidden grab");
