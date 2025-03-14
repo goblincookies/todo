@@ -13,9 +13,9 @@ class Task {
     #isSection = false;
     #isComplete = false;
     #title = "New Row Title";
-    #startTime = 3; //1-96 >> 0-24hrs * 4
-    #duration = 15;
-    #startDate = 0; // FORMALIZE LATER
+    #startDate = 3; //1-96 >> 0-24hrs * 4
+    #endDate = 15;
+    // #startDate = 0; // FORMALIZE LATER
     #color = "#6da9bb";
     #shift = 0;
     
@@ -34,13 +34,13 @@ class Task {
     set title (val) { if ( typeof val == 'string' ){  this.#title = val; }; };
     get title () { return this.#title; };
 
-    set startTime (val) { if ( typeof val == 'number' ){
+    set startDate (val) { if ( typeof val == 'number' ){
         console.log(`writing start time! time is ${val}`)
-        this.#startTime = val; }; };
-    get startTime () { return this.#startTime; };
+        this.#startDate = val; }; };
+    get startDate () { return this.#startDate; };
 
-    set duration (val) { if ( typeof val == 'number' ){  this.#duration = val; }; };
-    get duration () { return this.#duration; };
+    set endDate (val) { if ( typeof val == 'number' ){  this.#endDate = val; }; };
+    get endDate () { return this.#endDate; };
 
     set priority (val) { if (typeof val == 'number' ){  this.#priority = val; }; };
     get priority () { return this.#priority; };
@@ -62,19 +62,16 @@ class Converter {
         return Math.max(min, Math.min(value, max));
     };
 
-    inBounds( task, gridStartColumn, gridCellCount ) {
+    // task.startDate, task.endDate, gridStartDate, gridEndDate
+    inBounds( tS, tE, gS, gE ) {
 
-        const Ts = task.startTime;
-        const Gs = gridStartColumn;
-        const Te = Ts + task.duration;
-        const Ge = gridStartColumn + gridCellCount;
         // PASS LEFT
         // CHECKS IF BOTH START AND END ARE BEFORE THE GRID
-        let passLeft = !(( Ts < Gs ) && ( Te < Gs));
+        let passLeft = !(( tS < gS ) && ( tE < gS));
 
         // PASS RIGHT
         // CHECKS IF BOTH START AND END ARE AFTER THE GRID
-        let passRight = !(( Ts > Ge ) && ( Te > Ge));
+        let passRight = !(( tS > gE ) && ( tE > gE));
 
         return (passLeft || passRight);
     }

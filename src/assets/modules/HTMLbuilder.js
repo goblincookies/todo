@@ -78,34 +78,46 @@ class PageBuilder {
         return mainDiv;
     }
 
-    getHTML_Bar( task, start, span ) {
+    getHTML_Bar( task ) {
         if ( this.isNotTask( task ) ) { return 0; }
         
         // <div class="bar" id="bar-1"></div>
-        const mainDiv = this.createElement("div", "bar");
+        const mainDiv = this.createElement("div", "bar left");
         mainDiv.id = "bar-" + task.id;
 
         // grid-row: 3;
         // grid-column: 2 / span 1;
         mainDiv.style.gridRow = (task.id + task.shift) - 2; // -1 hours, -2 dates
-        mainDiv.style.gridColumn = `${start} / ${span}`;
+        // mainDiv.style.gridColumn = `${start} / ${span}`;
         mainDiv.style.backgroundColor = task.color;
         return mainDiv;
     };
 
-    updateHTML_Bar( HTML, start, span ) {
-        // <div class="bar" id="bar-1"></div>
-        // grid-row: 3;
-        // grid-column: 2 / span 1;
-        HTML.style.gridColumn = `${start} / ${span}`;
-        HTML.classList.remove("hidden");
-    };
+    // updateHTML_Bar( HTML, start, span ) {
+    //     // <div class="bar" id="bar-1"></div>
+    //     // grid-row: 3;
+    //     // grid-column: 2 / span 1;
+    //     HTML.style.gridColumn = `${start} / ${span}`;
+    //     HTML.classList.remove("hidden");
+    // };
 
     hideHTML( HTML ) {
         HTML.classList.add("hidden");
     };
 
-    
+    // allBars[-1], task.startDate, task.endDate, gridStartDate, gridEndDate
+    writeTransfomCSS( HTML, tS, tE, gS, gE ) {
+        console.log(`ts:${tS}, tE:${tE}, gS:${gS}, gE:${gE},`)
+
+        let css = "";
+        let start = Math.max( tS, gS );
+        let end = Math.min( gE, tE );
+        console.log(`HTML: ${HTML},`);
+        HTML.style.width = `${end-start}px`;
+        // console.log(`transform should be: translateX( ${tS-gS}px)`);
+        HTML.style.transform = `translateX( ${tS-gS}px)`;
+        return css;
+    }
 
     getHTML_Task( task ) {
         if ( this.isNotTask( task ) ) { return 0; }
