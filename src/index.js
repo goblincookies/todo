@@ -18,6 +18,11 @@ const gridSec = document.getElementById( "grid" );
 const rightSec= document.getElementById( "right" );
 const cell = 32
 let dragging = false;
+let resizingLeft = false;
+let resizingRight = false;
+
+let draggedBar;
+let draggedTask;
 let mouseOrigin = { x:0,y:0 };
 let lastPos = {x:0, y:0 };
 let newPos = {x:0, y:0 };
@@ -55,7 +60,7 @@ function setup(){
     // hourSec.style.gridTemplateColumns = `repeat( ${ hourCount } , ${ cell*4 }px )`;
 
     let taskStartDate = Math.round((today-startDate)/ 60000);
-    taskStartDate = taskStartDate + 500;
+    taskStartDate = taskStartDate + 200;
     // let gridColumn = {start:0, span:0};
 
     const fakeTasks = 25;
@@ -71,6 +76,18 @@ function setup(){
 
         allBars.push( pageBuilder.getHTML_Bar( task ) );
         gridSec.appendChild( allBars.last() );
+
+        allBars.last().querySelector(".grab").addEventListener("mousedown", draggingBar);
+        allBars.last().querySelector(".grab").addEventListener("mouseup", dropBar);
+
+        allBars.last().querySelector(".align-left").addEventListener("mousedown", resizingLeftStart);
+        allBars.last().querySelector(".align-right").addEventListener("mousedown", resizingRightStart);
+
+        allBars.last().querySelector(".align-left").addEventListener("mouseup", resizingLeftDone);
+        allBars.last().querySelector(".align-right").addEventListener("mouseup", resizingRightDone);
+
+        // allBars.last().addEventListener("dragStart", draggingBar);
+
 
         if ( converter.inBounds( task.startDate, task.endDate, gridStartDate, gridEndDate ) ) {
             pageBuilder.writeTransfomCSS( allBars.last(), task.startDate, task.endDate, gridStartDate, gridEndDate );
@@ -90,6 +107,40 @@ function setup(){
 
 };
 
+function draggingBar( e ) {
+    console.log(`clicked ${e.currentTarget.id}!!!!!!!!1`);
+    dragging = true;
+    draggedBar = e.currentTarget.parentNode.parentNode;
+    draggedTask = project.getTask( draggedBar.id.split("-")[1] );
+};
+function resizingLeftStart(e){
+    resizingLeft = true;
+    draggedBar = e.currentTarget.parentNode.parentNode;
+    draggedTask = project.getTask( draggedBar.id.split("-")[1] );
+};
+function resizingRightStart(e){
+    resizingRight = true;
+    draggedBar = e.currentTarget.parentNode.parentNode;
+    draggedTask = project.getTask( draggedBar.id.split("-")[1] );
+};
+function resizingLeftDone () {
+    resizingLeft = false;
+    draggedBar = "";
+    draggedTask = "";
+};
+function resizingRightDone() {
+    resizingRight = false;
+    draggedBar = "";
+    draggedTask = "";
+};
+function dropBar( e ) {
+    console.log(`released ${e.currentTarget.id}!!!!!!!!1`);
+    dragging = false;
+    draggedBar = "";
+    draggedTask = "";
+};
+
+
 // KEEP TRACK OF MOUSE FOR DOWN
 document.body.onmousedown = function (e) {
     lastPos.x = e.clientX;
@@ -102,53 +153,87 @@ document.body.onmouseup = function () {
     offset = {x:0, y:0 };
     lastPos.x = 0;
     mouseDown=false;
+    dragging = false;
+    resizingLeft=false;
+    resizingRight=false;
+
 };
 rightSec.onmouseenter = () => inBounds=true;
 rightSec.onmouseleave = () => inBounds=false;
 
-// function drawBars() {
-//     gridSec.style.transform = `translateX( ${ newPos.x  }px )`;
-//     hourSec.style.transform = `translateX( ${ newPos.x  }px )`;
-//     dateSec.style.transform = `translateX( ${ newPos.x  }px )`;
-//     HTMLUPDATE.forEach ( chunk => {
-//         // chunk = [HTML, gridColumn.start, gridColumn.span]
-//         pageBuilder.updateHTML_Bar( chunk[0], chunk[1], chunk[2] );
-//     });
-//     HTMLUPDATE = [];
-// }
 
 onmousemove = function(e){
 
-    if ( mouseDown && inBounds ) {
+    if( mouseDown && inBounds && dragging ) {
+        console.log(`dragging ${ draggedBar.id }!!!!!!!!1`);
 
         mousePos.x = e.clientX;
-        // mousePos.y = e.clientY;
-        // newPos.x = (mousePos.x - mouseOrigin.x); // + lastPos.x + offset.x - oversize.x;
-        // console.log(`mouse delta-- lastPos: ${lastPos.x}, newPos: ${mousePos.x}`)
+
+        draggedTask.startDate -= (lastPos.x - mousePos.x);
+        draggedTask.endDate -= (lastPos.x - mousePos.x);
+        lastPos.x = mousePos.x;
+
+        if( draggedBar && draggedTask ) {
+            if ( converter.inBounds( draggedTask.startDate, draggedTask.endDate, gridStartDate, gridEndDate ) ) {
+                pageBuilder.writeTransfomCSS( draggedBar, draggedTask.startDate, draggedTask.endDate, gridStartDate, gridEndDate );
+            } else {
+                console.log(`ts:${draggedTask.startDate}, tE:${draggedTask.endDate}, gS:${gridStartDate}, gE:${gridEndDate},`)
+
+                pageBuilder.hideHTML( draggedBar );
+            };
+        }
+    };
+
+    if( mouseDown && inBounds && resizingLeft ) {
+        console.log(`resizing left! ${ draggedBar.id }!!!!!!!!1`);
+
+        mousePos.x = e.clientX;
+
+        draggedTask.startDate -= (lastPos.x - mousePos.x);
+        // draggedTask.endDate -= (lastPos.x - mousePos.x);
+        lastPos.x = mousePos.x;
+
+        if( draggedBar && draggedTask ) {
+            if ( converter.inBounds( draggedTask.startDate, draggedTask.endDate, gridStartDate, gridEndDate ) ) {
+                pageBuilder.writeTransfomCSS( draggedBar, draggedTask.startDate, draggedTask.endDate, gridStartDate, gridEndDate );
+            } else {
+                console.log(`ts:${draggedTask.startDate}, tE:${draggedTask.endDate}, gS:${gridStartDate}, gE:${gridEndDate},`)
+
+                pageBuilder.hideHTML( draggedBar );
+            };
+        }
+    };
+
+    if( mouseDown && inBounds && resizingRight ) {
+        console.log(`resizing Right ${ draggedBar.id }!!!!!!!!1`);
+
+        mousePos.x = e.clientX;
+
+        // draggedTask.startDate -= (lastPos.x - mousePos.x);
+        draggedTask.endDate -= (lastPos.x - mousePos.x);
+        lastPos.x = mousePos.x;
+
+        if( draggedBar && draggedTask ) {
+            if ( converter.inBounds( draggedTask.startDate, draggedTask.endDate, gridStartDate, gridEndDate ) ) {
+                pageBuilder.writeTransfomCSS( draggedBar, draggedTask.startDate, draggedTask.endDate, gridStartDate, gridEndDate );
+            } else {
+                console.log(`ts:${draggedTask.startDate}, tE:${draggedTask.endDate}, gS:${gridStartDate}, gE:${gridEndDate},`)
+
+                pageBuilder.hideHTML( draggedBar );
+            };
+        }
+    };
+
+    if ( mouseDown && inBounds && !dragging ) {
+
+        mousePos.x = e.clientX;
         gridStartDate += (lastPos.x - mousePos.x);
         gridEndDate += (lastPos.x - mousePos.x);
-        console.log(`grid -- start Date: ${gridStartDate}, end Date: ${gridEndDate}`)
+        // console.log(`grid -- start Date: ${gridStartDate}, end Date: ${gridEndDate}`)
 
         lastPos.x = mousePos.x;
 
         shiftBars();
-
-        
-
-        // if ( Math.abs(newPos.x + oversize.x ) > ( oversize.x ) ) {
-        //     const direction = Math.sign(newPos.x)
-        //     offset.x -= direction * ( oversize.x );
-        //     gridStartColumn -= direction * ( 4 );
-        //     requestAnimationFrame( drawBars );
-
-        // } else {
-        //     requestAnimationFrame( drawBars );
-        //     // // console.log( `starting column: ${ gridStartColumn} `);
-        //     // gridSec.style.transform = `translateX( ${ newPos.x  }px )`;
-        //     // hourSec.style.transform = `translateX( ${ newPos.x  }px )`;
-        //     // dateSec.style.transform = `translateX( ${ newPos.x  }px )`;
-
-        // }
 
     };
 };

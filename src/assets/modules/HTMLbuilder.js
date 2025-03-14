@@ -81,9 +81,25 @@ class PageBuilder {
     getHTML_Bar( task ) {
         if ( this.isNotTask( task ) ) { return 0; }
         
-        // <div class="bar" id="bar-1"></div>
-        const mainDiv = this.createElement("div", "bar left");
+        // <div class="bar" id="bar-1">
+        //      <div class="gizmos">
+        //          <span class="resize align-left"></span>
+        //          <span class="grab align-full"></span>
+        //          <span class="resize align-right"></span>
+        //      </div>
+        // </div>
+        const mainDiv = this.createElement("div", "bar");
         mainDiv.id = "bar-" + task.id;
+        const gizmoDiv = this.createElement("div", "gizmos");
+        const leftSpan = this.createElement("div", "resize align-left");
+        const centerSpan = this.createElement("div", "grab align-full");
+        const rightSpan = this.createElement("div", "resize align-right");
+
+        gizmoDiv.appendChild(leftSpan);
+        gizmoDiv.appendChild(centerSpan);
+        gizmoDiv.appendChild(rightSpan);
+
+        mainDiv.appendChild(gizmoDiv);
 
         // grid-row: 3;
         // grid-column: 2 / span 1;
@@ -107,12 +123,12 @@ class PageBuilder {
 
     // allBars[-1], task.startDate, task.endDate, gridStartDate, gridEndDate
     writeTransfomCSS( HTML, tS, tE, gS, gE ) {
-        console.log(`ts:${tS}, tE:${tE}, gS:${gS}, gE:${gE},`)
+        // console.log(`ts:${tS}, tE:${tE}, gS:${gS}, gE:${gE},`)
 
         let css = "";
         let start = Math.max( tS, gS );
         let end = Math.min( gE, tE );
-        console.log(`HTML: ${HTML},`);
+        // console.log(`HTML: ${HTML},`);
         HTML.style.width = `${end-start}px`;
         // console.log(`transform should be: translateX( ${tS-gS}px)`);
         HTML.style.transform = `translateX( ${tS-gS}px)`;
