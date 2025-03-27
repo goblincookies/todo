@@ -10,6 +10,7 @@ const dragManager = new DragToReorder();
 
 let leftSec;
 let taskList;
+let grid;
 
 function setup () {
     // const taskBuilder = new TaskBuilder();
@@ -19,7 +20,7 @@ function setup () {
     content.appendChild( pageBuilder.getHTML_ProjectPage() );
     leftSec = document.getElementById( "left" );
     taskList = document.getElementById( "task-list" );
-
+    grid = document.getElementById("grid");
     // leftSec = document.getElementById( "left" );
     const newTask = document.getElementById( "new-task" );
     
@@ -46,6 +47,7 @@ function createNewTask( e ) {
     project.writeTask( task );
     
     taskList.appendChild( pageBuilder.getHTML_Task( task ) );
+    grid.appendChild( pageBuilder.getHTML_Bar( task ) );
 
     dragManager.update();
 

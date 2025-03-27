@@ -263,12 +263,297 @@ class DragToResize {
 
 };
 
-class Drag {
+class DragToReorder {
+    // BUILT OFF THIS REPO
+    // https://github.com/TahaSh/drag-to-reorder/blob/main/main.js
+
+    obj = {
+        TASK:0,
+        BARS:1
+    }
+
+    draggableList = [];
+    draggableItem = [];
+    pointerStartX
+    pointerStartY
+    itemsGap = 0;
+    items = [];
+
+    constructor(){
+        this.setup();
+    };
+
+    getAllItems( el ) {
+        if (!this.items[ el ]?.length) {
+            this.items[ el ] = Array.from( this.draggableList[ el ].querySelectorAll(".reorderable"))
+        };
+        return this.items[ el ];
+    };
+
+    getIdleItems( el ) {   
+        return this.getAllItems( el ).filter( (item) => item.classList.contains("is-idle"));
+    };
+
+    isItemAbove( item ) {
+        return item.hasAttribute( 'data-is-above');
+    };
+
+    isItemToggled( item ) {
+        return item.hasAttribute( 'data-is-toggled');
+    };
+
+    createReorderableListeners() {
+        this.reorderableItems = document.querySelectorAll(".drag-handle");
+        if (!this.reorderableItems) return;
+
+        this.reorderableItems.forEach( item => {
+            console.log(item);
+            item.addEventListener("mousedown", this.dragStart);
+            item.addEventListener("touchstart", this.dragStart);
+
+        });
+    };
+
+    update() {
+        this.createReorderableListeners();
+    };
+
+    // SETUP
+    setup() {
+        this.createReorderableListeners();
+
+        document.addEventListener("mouseup", this.dragEnd );
+        document.addEventListener("touchend", this.dragEnd);
+    };
+
+    // DRAG START
+    dragStart = (e) => {
+        console.log("Drag Start!!");
+
+        if (e.currentTarget.classList.contains("drag-handle")) {
+            // console.log(`found drag-handle!`);
+            this.draggableItem[ this.obj.TASK ] = e.target.closest(".reorderable");
+            let grabbedID = this.draggableItem[this.obj.TASK].id;
+            grabbedID = grabbedID.split("-")[1];
+            this.draggableItem[ this.obj.BARS ] = document.getElementById(`bar-${grabbedID}`).parentNode;
+            // console.log(this.draggableItem[this.obj.BARS])
+
+            this.draggableList[ this.obj.TASK ] = e.target.closest(".reorderable-list");
+            this.draggableList[ this.obj.BARS ] = document.querySelector(".reorderable-bars");
+
+        };
+
+        console.log(this.draggableItem[ this.obj.TASK ]);
 
 
-}
+        if(!this.draggableItem[ this.obj.TASK ]) return;
 
-class DragToReorder{
+        this.pointerStartX = e.clientX || e.touches[0].clientX;
+        this.pointerStartY = e.clientY || e.touches[0].clientY;
+
+        this.setItemsGap();
+        this.disablePageScroll();
+        this.initItemState();
+        this.initDraggableItem();
+
+        // document.addEventListener("mousemove", this.drag.bind( this ) );
+        document.addEventListener("mousemove", this.drag );
+
+        document.addEventListener("touchmove", this.drag, {passive: false});
+        console.log(`finished!`);
+    };
+
+    setItemsGap(){
+        if( this.getIdleItems( this.obj.TASK ).length <=1) {
+            this.itemsGap = 0;
+            return;
+        };
+
+        const item1 = this.getIdleItems( this.obj.TASK )[0];
+        const item2 = this.getIdleItems( this.obj.TASK )[1];
+
+        const item1Rect = item1.getBoundingClientRect();
+        const item2Rect = item2.getBoundingClientRect();
+
+        this.itemsGap = Math.abs( item1Rect.bottom - item2Rect.top);
+    };
+
+    disablePageScroll(){
+        document.body.style.overflow = 'hidden';
+        document.body.style.touchAction = 'none';
+        document.body.style.userSelect = 'none';
+
+    };
+
+    initItemState() {
+        Object.values( this.obj ).forEach( el => {
+            this.getIdleItems( el ).forEach( (item, i) => {
+                console.log(item, i)
+                if( this.getAllItems( el ).indexOf( this.draggableItem[ el ] ) > i ) {
+                    item.dataset.isAbove = '';
+                };
+            });
+        });
+    };
+
+    initDraggableItem() {
+        Object.values( this.obj ).forEach( el => {
+            this.draggableItem[ el ].classList.remove("is-idle");
+            this.draggableItem[ el ].classList.add("is-dragging");
+        });
+    };
+
+    // DRAG
+    drag = (e) => {
+        console.log(`draggggging!!`);
+        
+        if (!this.draggableItem[ this.obj.TASK ]) return;
+
+        e.preventDefault();
+
+        const clientX = e.clientX || e.touches[0].clientX;
+        const clientY = e.clientY || e.touches[0].clientY;
+
+        const pointerOffsetX = clientX - this.pointerStartX;
+        const pointerOffsetY = clientY - this.pointerStartY;
+
+        this.draggableItem[ this.obj.TASK ].style.transform = `translate(${pointerOffsetX}px, ${pointerOffsetY}px)`
+        this.draggableItem[ this.obj.BARS ].style.transform = `translateY(${pointerOffsetY}px)`;
+        
+        this.updateIdleItemsStateAndPosition( );
+    };
+
+    updateIdleItemsStateAndPosition(){
+        const draggableItemRect = this.draggableItem[ this.obj.TASK ].getBoundingClientRect();
+        const draggableItemY = draggableItemRect.top + draggableItemRect.height / 2;
+
+        Object.values( this.obj ).forEach( el => {
+            // UPDATE STATE
+            this.getIdleItems( el ).forEach( (item) => {
+                const itemRect = item.getBoundingClientRect();
+                const itemY = itemRect.top + itemRect.height/2;
+                if ( this.isItemAbove(item)) {
+                    if( draggableItemY <= itemY) {
+                        item.dataset.isToggled = '';
+                    } else {
+                        delete item.dataset.isToggled;
+                    }
+                } else {
+                    if( draggableItemY >= itemY) {
+                        item.dataset.isToggled = '';
+                    } else {
+                        delete item.dataset.isToggled;
+                    };
+                };
+            });
+
+            // UPDATE POSITIONS
+            this.getIdleItems( el).forEach( (item) => {
+                if (this.isItemToggled( item )) {
+                    const direction = this.isItemAbove(item) ? 1 : -1;
+                    item.style.transform = `translateY( ${ direction * (draggableItemRect.height + this.itemsGap)}px)`;
+                } else {
+                    item.style.transform = '';
+                };
+            });
+
+        });
+        
+
+        // UPDATE POSITIONS
+        this.getIdleItems( this.obj.TASK ).forEach( (item) => {
+            if (this.isItemToggled( item )) {
+                const direction = this.isItemAbove(item) ? 1 : -1;
+                item.style.transform = `translateY( ${ direction * (draggableItemRect.height + this.itemsGap)}px)`;
+            } else {
+                item.style.transform = '';
+            };
+        });
+    };
+
+    // DRAG END
+    dragEnd = () => {
+        console.log("Drag END");
+        if (!this.draggableItem[ this.obj.TASK ]) return;
+
+        this.applyNewItemOrder();
+        this.cleanup();
+
+        // document.addEventListener("mousemove", this.drag.bind( this ) );
+        document.removeEventListener("mousemove", this.drag );
+        document.removeEventListener("touchmove", this.drag);
+    };
+
+    applyNewItemOrder() {
+        Object.values( this.obj ).forEach( el => {
+
+            const reorderedItems = [];
+
+            this.getAllItems( el ).forEach( (item, index) => {
+                if ( item === this.draggableItem[ el ]) {
+                    return;
+                };
+                if( !this.isItemToggled(item)) {
+                    reorderedItems[index] = item;
+                    return;
+                };
+                const newIndex = this.isItemAbove(item) ? index + 1 : index -1;
+                reorderedItems[newIndex] = item;
+            } );
+
+            for (let index = 0; index < this.getAllItems( el ).length; index++) {
+                const item = reorderedItems[index];
+                if(typeof item === 'undefined') {
+                    reorderedItems[index] = this.draggableItem[ el ];
+                };
+            };
+
+            reorderedItems.forEach( (item) => {
+                this.draggableList[ el ].appendChild( item );
+            });
+        });
+    };
+
+    cleanup() {
+        this.itemsGap = 0;
+        this.unsetItemState();
+        this.unsetDraggable();
+        this.enablePageScroll();
+        this.items = [];
+        this.draggableList = [];
+        
+        document.removeEventListener("mousemove", this.drag);
+        document.removeEventListener("touchmove", this.drag);
+    };
+
+    unsetDraggable() {
+        Object.values( this.obj ).forEach( el => {
+            this.draggableItem[ el ].style = null;
+            this.draggableItem[ el ].classList.remove("is-dragging");
+            this.draggableItem[ el ].classList.add("is-idle");
+            this.draggableItem[ el ] = null;
+        });
+    };
+
+    unsetItemState() {
+        Object.values( this.obj ).forEach( el => {
+            this.getIdleItems( el ).forEach( (item, i)=> {
+                delete item.dataset.isAbove;
+                delete item.dataset.isToggled;
+                item.style.transform = '';
+            });
+        });
+    };
+
+    enablePageScroll() {
+        document.body.style.overflow = '';
+        document.body.style.touchAction = '';
+        document.body.style.userSelect = '';
+    };
+
+};
+
+class DragToReorderSingle{
 
     // BUILT OFF THIS REPO
     // https://github.com/TahaSh/drag-to-reorder/blob/main/main.js
@@ -292,7 +577,7 @@ class DragToReorder{
     };
 
     getIdleItems() {   
-        return this.getAllItems().filter( (item) => item.classList.contains("isIdle"));
+        return this.getAllItems().filter( (item) => item.classList.contains("is-idle"));
     };
 
     isItemAbove( item ) {
@@ -388,8 +673,8 @@ class DragToReorder{
     };
 
     initDraggableItem() {
-        this.draggableItem.classList.remove("isIdle");
-        this.draggableItem.classList.add("isDragging");
+        this.draggableItem.classList.remove("is-idle");
+        this.draggableItem.classList.add("is-dragging");
     };
 
     // DRAG
@@ -498,8 +783,8 @@ class DragToReorder{
 
     unsetDraggable() {
         this.draggableItem.style = null;
-        this.draggableItem.classList.remove("isDragging");
-        this.draggableItem.classList.add("isIdle");
+        this.draggableItem.classList.remove("is-dragging");
+        this.draggableItem.classList.add("is-idle");
         this.draggableItem = null;
     };
 

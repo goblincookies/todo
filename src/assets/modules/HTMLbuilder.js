@@ -61,10 +61,10 @@ class PageBuilder {
         const firstDiv = this.createElement("div", "flex-h-left-bottom");
         const leftDiv = this.createElement("div", "left");
         const taskListUl = this.createElement("ul", "reorderable-list");
-        const rightDiv = this.createElement("div", "right crop debugC");
-        const dateUl = this.createElement("ul", "date flex-h oversize");
-        const hourUl = this.createElement("ul", "hour flex-h oversize");
-        const gridUl = this.createElement("ul", "grid pan oversize");
+        const rightDiv = this.createElement("div", "right crop");
+        const dateUl = this.createElement("ul", "date flex-h");
+        const hourUl = this.createElement("ul", "hour flex-h");
+        const gridUl = this.createElement("ul", "grid pan reorderable-bars");
         const secDiv = this.createElement("div", "flex-h-left-bottom");
         const secLeftDiv = this.createElement("div", "left");
         const buttonHolderDiv = this.createElement("div", "flex-h-center");
@@ -121,6 +121,15 @@ class PageBuilder {
     getHTML_Bar( task ) {
         if ( this.isNotTask( task ) ) { return 0; }
         
+
+        // <li class="flex-h">
+        //     <div class="bar flex-h-spread" id="bar-1">
+        //         <span class="resize align-left"></span>
+        //         <span class="resize align-right"></span>
+        //     </div>
+        // </li>
+
+
         // <div class="bar" id="bar-1">
         //      <div class="gizmos">
         //          <span class="resize align-left"></span>
@@ -128,24 +137,20 @@ class PageBuilder {
         //          <span class="resize align-right"></span>
         //      </div>
         // </div>
-        const mainDiv = this.createElement("div", "bar");
-        mainDiv.id = "bar-" + task.id;
-        const gizmoDiv = this.createElement("div", "gizmos");
-        const leftSpan = this.createElement("div", "resize align-left");
-        const centerSpan = this.createElement("div", "grab align-full");
-        const rightSpan = this.createElement("div", "resize align-right");
 
-        gizmoDiv.appendChild(leftSpan);
-        gizmoDiv.appendChild(centerSpan);
-        gizmoDiv.appendChild(rightSpan);
+        const mainDiv = this.createElement("li", "flex-h reorderable is-idle");
+        const barDiv = this.createElement("div", "bar flex-h-spread");
+        barDiv.id = "bar-" + task.id;
+        const leftSpan = this.createElement("span", "resize align-left");
+        const centerSpan = this.createElement("span", "grab align-full");
+        const rightSpan = this.createElement("span", "resize align-right");
 
-        mainDiv.appendChild(gizmoDiv);
+        barDiv.appendChild(leftSpan);
+        barDiv.appendChild(centerSpan);
+        barDiv.appendChild(rightSpan);
+        mainDiv.appendChild(barDiv);
 
-        // grid-row: 3;
-        // grid-column: 2 / span 1;
-        mainDiv.style.gridRow = (task.id + task.shift) - 2; // -1 hours, -2 dates
-        // mainDiv.style.gridColumn = `${start} / ${span}`;
-        mainDiv.style.backgroundColor = task.color;
+        barDiv.style.backgroundColor = task.color;
         return mainDiv;
     };
 
@@ -179,31 +184,6 @@ class PageBuilder {
     getHTML_Task( task ) {
         if ( this.isNotTask( task ) ) { return 0; }
 
-        // <!-- TASK -->
-        // <div class="row flex-h-spread">
-        //     <button class="circle-button redbkg hidden">
-        //         <img src="./assets/images/close.svg" alt="">
-        //     </button>
-
-        //     <div class="task flex-h-right ribbon pad">
-        //         <button class="img-button hidden grab">
-        //             <img src="./assets/images/drag.svg" alt="">
-        //         </button>
-
-        //         <button class="img-button">
-        //             <img src="./assets/images/flag.svg" alt="">
-        //         </button>
-
-        //         <input type="checkbox" name="" id="">
-        //         <h3 class="text-sm bold">buy a new amp!!!</h3>
-        //         <p class="time text-sm">41h 15m</p>
-        //         <button class="div-button">
-        //             <div class="color hidden"></div>
-        //         </button>
-        //     </div>
-
-        // </div>
-
         // <li class="row flex-h-spread reorderable isIdle" id = "task-1">
         //     <button class="circle-button redbkg hidden">
         //         <img src="./assets/images/close.svg" alt="">
@@ -227,7 +207,7 @@ class PageBuilder {
         //     </div>
         // </li>
 
-        const mainDiv = this.createElement("li", "row flex-h-spread reorderable isIdle");
+        const mainDiv = this.createElement("li", "row flex-h-spread reorderable is-idle");
         mainDiv.id = `task-${task.id}`;
         const delButton = this.createElement("button", "circle-button redbkg hidden");
         const delImg = this.createElement("img", "", fileClose);
