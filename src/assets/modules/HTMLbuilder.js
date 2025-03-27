@@ -33,33 +33,73 @@ class PageBuilder {
 
     getHTML_ProjectPage() {
 
-         // <div class="flex-h-left-top debugB" id="block">
-        //     <div class="left" id="left"> --- </div>
-        //     <div class="right crop" id="right">
-        //         <div class="date" id="date"> --- </div>
-        //         <div class="hour" id="hour"> --- </div>
-        //         <div class="grid pan" id="grid"> --- </div>
+        // <div class="chart" id="chart">
+        //     <div class="flex-h-left-bottom">
+        //         <div class="left border-right" id="left">
+        //              <ul id = "task-list"> --- </ul>
+        //          </div>
+        //         <div class="right " id="right">
+        //             <ul class="flex-h date" id="date"> --- </ul>
+        //             <ul class="flex-h hour" id="hour"> --- </ul>
+        //             <ul class="grid pan" id="grid"> --- </ul>
+        //         </div>
+        //     </div>
+
+        //     <div class="flex-h-left-bottom">
+        //         <div class="left">
+        //             <div class="flex-h-center">
+        //                 <button class="task-button" id="new-task">
+        //                     <h3 class="text-sm upper gray0 trunc">+New Task</h3>
+        //                 </button>
+        //             </div>
+        //         </div>
+        //         <div class="blank right"></div>
         //     </div>
         // </div>
-
-        const mainDiv = this.createElement("div", "flex-h-left-top");
-        const leftDiv = this.createElement("div", "left debugB");
+        
+        const mainDiv = this.createElement("div", "chart");
+        const firstDiv = this.createElement("div", "flex-h-left-bottom");
+        const leftDiv = this.createElement("div", "left");
+        const taskListUl = this.createElement("ul", "reorderable-list");
         const rightDiv = this.createElement("div", "right crop debugC");
-        const dateDiv = this.createElement("div", "date oversize");
-        const hourDiv = this.createElement("div", "hour oversize");
-        const gridDiv = this.createElement("div", "grid pan oversize");
+        const dateUl = this.createElement("ul", "date flex-h oversize");
+        const hourUl = this.createElement("ul", "hour flex-h oversize");
+        const gridUl = this.createElement("ul", "grid pan oversize");
+        const secDiv = this.createElement("div", "flex-h-left-bottom");
+        const secLeftDiv = this.createElement("div", "left");
+        const buttonHolderDiv = this.createElement("div", "flex-h-center");
+        const secRightDiv = this.createElement("div", "right blank");
+        const newTaskButton = this.createElement("button", "task-button");
+        const newTaskH3 = this.createElement("h3", "text-sm upper gray0 trun");
 
+        mainDiv.id = "chart";
         leftDiv.id = "left";
+        taskListUl.id = "task-list";
         rightDiv.id = "right";
-        dateDiv.id = "date";
-        hourDiv.id = "hour";
-        gridDiv.id = "grid";
+        dateUl.id = "date";
+        hourUl.id = "hour";
+        gridUl.id = "grid";
+        newTaskButton.id = "new-task";
 
-        rightDiv.appendChild( dateDiv );
-        rightDiv.appendChild( hourDiv );
-        rightDiv.appendChild( gridDiv );
-        mainDiv.appendChild( leftDiv );
-        mainDiv.appendChild( rightDiv );
+
+        newTaskH3.textContent = "+ new task";
+        newTaskButton.appendChild( newTaskH3 );
+        buttonHolderDiv.appendChild( newTaskButton );
+        secLeftDiv.appendChild( buttonHolderDiv );
+        secDiv.appendChild( secLeftDiv );
+        secDiv.appendChild( secRightDiv );
+
+        rightDiv.appendChild( dateUl );
+        rightDiv.appendChild( hourUl );
+        rightDiv.appendChild( gridUl );
+        leftDiv.appendChild( taskListUl );
+        firstDiv.appendChild( leftDiv );
+        firstDiv.appendChild( rightDiv );
+
+        mainDiv.appendChild( firstDiv );
+        mainDiv.appendChild( secDiv );
+
+
 
         return mainDiv;
     };
@@ -139,24 +179,6 @@ class PageBuilder {
     getHTML_Task( task ) {
         if ( this.isNotTask( task ) ) { return 0; }
 
-        // <!-- SECTION -->
-        // <div class="row flex-h-spread">
-
-        //     <button class="circle-button redbkg hidden">
-        //         <img src="./assets/images/close.svg" alt="">
-        //     </button>
-
-        //     <div class="section flex-h-right ribbon pad">
-        //         <button class="img-button hidden grab">
-        //             <img src="./assets/images/drag.svg" alt="">
-        //         </button>
-
-        //         <h3 class="text-sm upper">Today</h3>
-        //         <p class="time text-sm bold">14h 15m</p>
-        //         <div class="color hidden-x"></div>
-        //     </div>
-        // </div>
-
         // <!-- TASK -->
         // <div class="row flex-h-spread">
         //     <button class="circle-button redbkg hidden">
@@ -182,8 +204,31 @@ class PageBuilder {
 
         // </div>
 
-        const mainDiv = this.createElement("div", "row flex-h-spread");
-        mainDiv.style.gridRow = task.id + task.shift;
+        // <li class="row flex-h-spread reorderable isIdle" id = "task-1">
+        //     <button class="circle-button redbkg hidden">
+        //         <img src="./assets/images/close.svg" alt="">
+        //     </button>
+
+        //     <div class="task flex-h-right ribbon pad">
+        //         <button class="img-button hidden grab drag-handle">
+        //             <img src="./assets/images/drag.svg" alt="">
+        //         </button>
+
+        //         <button class="img-button">
+        //             <img src="./assets/images/flag.svg" alt="">
+        //         </button>
+
+        //         <input type="checkbox" name="" id="">
+        //         <h3 class="text-sm bold trunc">buy a new amp!!!</h3>
+        //         <p class="time text-sm">41h 15m</p>
+        //         <button class="div-button">
+        //             <div class="color hidden"></div>
+        //         </button>
+        //     </div>
+        // </li>
+
+        const mainDiv = this.createElement("li", "row flex-h-spread reorderable isIdle");
+        mainDiv.id = `task-${task.id}`;
         const delButton = this.createElement("button", "circle-button redbkg hidden");
         const delImg = this.createElement("img", "", fileClose);
         delButton.appendChild( delImg );
@@ -192,25 +237,22 @@ class PageBuilder {
         // console.log(`checking task section: ${task.isSection}`);
         taskDiv.classList.add( ( (task.isSection) ? "section" : "task" ) );
 
-        const dragButton = this.createElement("button", "img-button hidden grab");
-        const dragImg = this.createElement("img", "", fileDrag);
+        const dragButton = this.createElement("div", "img-button hidden grab drag-handle debugA");
+        const dragImg = this.createElement("img", "no-select", fileDrag);
         dragButton.appendChild( dragImg );
         taskDiv.appendChild( dragButton );
 
-        if ( !task.isSection) {
-            const flagButton = this.createElement("button", "img-button");
-            const flagImg = this.createElement("img", "", fileFlag );
-            flagButton.appendChild(flagImg);
-            const completedCheck = this.createElement("input", "");
-            completedCheck.type = "checkbox";
+        const flagButton = this.createElement("button", "img-button");
+        const flagImg = this.createElement("img", "", fileFlag );
+        flagButton.appendChild(flagImg);
+        const completedCheck = this.createElement("input", "");
+        completedCheck.type = "checkbox";
+        completedCheck.checked = task.isComplete;
 
-            taskDiv.appendChild( flagButton );
-            taskDiv.appendChild( completedCheck );
-        };
-
+        taskDiv.appendChild( flagButton );
+        taskDiv.appendChild( completedCheck );
         
         const titleH3 = this.createElement("h3", "text-sm bold trunc");
-        if (task.isSection) { titleH3.classList.add("upper") };
 
         titleH3.textContent = task.title;
         const durationP = this.createElement("p", "time text-sm");
@@ -218,7 +260,7 @@ class PageBuilder {
         const colorButton = this.createElement("button", "div-button");
         const colorDiv = this.createElement("div", "color");
         
-        colorDiv.classList.add( ( (task.isSection) ? "hidden-x" : "hidden" ) );
+        colorDiv.classList.add("hidden");   
 
         colorDiv.style.backgroundColor = task.color;
         colorButton.appendChild(colorDiv);

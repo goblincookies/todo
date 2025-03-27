@@ -42,6 +42,12 @@ class Task {
     set endDate (val) { if ( typeof val == 'number' ){  this.#endDate = val; }; };
     get endDate () { return this.#endDate; };
 
+    get duration () {
+        let sec = this.#endDate - this.#startDate;
+        let min = Math.floor(sec / 60);
+        return `${min}m`;
+    }
+
     set priority (val) { if (typeof val == 'number' ){  this.#priority = val; }; };
     get priority () { return this.#priority; };
 

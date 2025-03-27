@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/style.css">
+    <title>To Do</title>
+</head>
+<body>
+    <header>
+        <button class="text-button" id="new-project">
+            <h3 class="text-md heavy upper gray4 button">+ project</h3>
+        </button>
+        <div class="flex-h-left debugA">
+            <button class="img-button" id="see-projects">
+                <img src="./assets/images/circle-down.svg" alt="" class="icon-lg">
+            </button>
+            <h1 class="text-lg ital heavy gray0 upper" id="active-title">Project title</h1>
+        </div>
+    </header>
+
+    <div id="content">
+        <div class="flex-h-left-top debugB" id="block">
+            <div class="left" id="left">
+    
+                <div class="blank"></div>
+                <div class="blank"></div>
+    
+    
+                <!-- SECTION -->
+                <div class="row flex-h-spread">
+                    <button class="circle-button redbkg hidden">
+                        <img src="./assets/images/close.svg" alt="">
+                    </button>
+    
+                    <div class="section flex-h-right ribbon pad">
+                        <button class="img-button hidden grab">
+                            <img src="./assets/images/drag.svg" alt="">
+                        </button>
+    
+                        <h3 class="text-sm upper trunc">Today</h3>
+                        <p class="time text-sm bold">14h 15m</p>
+                        <div class="color hidden-x"></div>
+                    </div>
+                </div>
+    
+                <!-- TASK -->
+                <div class="row flex-h-spread">
+                    <button class="circle-button redbkg hidden">
+                        <img src="./assets/images/close.svg" alt="">
+                    </button>
+    
+                    <div class="task flex-h-right ribbon pad">
+                        <button class="img-button hidden grab">
+                            <img src="./assets/images/drag.svg" alt="">
+                        </button>
+    
+                        <button class="img-button">
+                            <img src="./assets/images/flag.svg" alt="">
+                        </button>
+    
+                        <input type="checkbox" name="" id="">
+                        <h3 class="text-sm bold trunc">buy a new amp!!!</h3>
+                        <p class="time text-sm">41h 15m</p>
+                        <button class="div-button">
+                            <div class="color hidden"></div>
+                        </button>
+                    </div>
+                </div>
+    
+                <div class="row flex-h-spread">
+                    <button class="circle-button redbkg hidden">
+                        <img src="./assets/images/close.svg" alt="">
+                    </button>
+    
+                    <div class="task flex-h-right ribbon pad">
+                        <button class="img-button hidden grab">
+                            <img src="./assets/images/drag.svg" alt="">
+                        </button>
+    
+                        <button class="img-button">
+                            <img src="./assets/images/flag.svg" alt="">
+                        </button>
+                        <input type="checkbox" name="" id="">
+                        <h3 class="text-sm bold trunc">band practice</h3>
+                        <p class="time text-sm">41h 15m</p>
+                        <button class="div-button">
+                            <div class="color hidden"></div>
+                        </button>
+                    </div>
+                </div>
+
+
+                <div class="row flex-h-spread">
+                    <button class="circle-button redbkg hidden-x">
+                        <img src="./assets/images/close.svg" alt="">
+                    </button>
+    
+                    <div class="task flex-h-right ribbon pad">
+                        <button class="img-button hidden-x grab">
+                            <img src="./assets/images/drag.svg" alt="">
+                        </button>
+    
+                        <button class="img-button hidden-x">
+                            <img src="./assets/images/flag.svg" alt="">
+                        </button>
+                        <input type="checkbox" name="" class = "hidden-x" id="">
+                        <h3 class="text-sm bold upper gray3 trunc">+New Task </h3>
+                        <p class="time text-sm hidden-x">41h 15m</p>
+                        <button class="div-button hidden-x">
+                            <div class="color hidden-x"></div>
+                        </button>
+                    </div>
+                </div>
+
+
+                <div class="blank"></div>
+
+                <div class="row flex-h-spread">
+                    <button class="circle-button redbkg hidden-x">
+                        <img src="./assets/images/close.svg" alt="">
+                    </button>
+    
+                    <div class="section flex-h-right ribbon pad">
+                        <button class="img-button hidden-x grab">
+                            <img src="./assets/images/drag.svg" alt="">
+                        </button>
+    
+                        <h3 class="text-sm bold upper gray3 trunc">+New Section</h3>
+                        <p class="time text-sm bold hidden-x">14h 15m</p>
+                        <div class="color hidden-x"></div>
+                    </div>
+                </div>
+    
+            </div>
+            <div class="right" id="right">
+                <div class="date" id="date">
+                    <h3 class="text-sm">MAR 8</h3>
+                    <h3 class="text-sm">MAR 9</h3>
+                    <h3 class="text-sm">MAR 9</h3>
+                    <h3 class="text-sm">MAR 9</h3>
+    
+                </div>
+                <div class="hour" id="hour">
+                    <h3 class="text-sm">21</h3>
+                    <h3 class="text-sm">22</h3>
+                    <h3 class="text-sm">23</h3>
+                    <h3 class="text-sm">0</h3>
+                    <h3 class="text-sm">1</h3>
+                    <h3 class="text-sm">2</h3>
+                    <h3 class="text-sm">3</h3>
+                    <h3 class="text-sm">4</h3>
+                    <h3 class="text-sm">5</h3>
+    
+                </div>
+                <div class="grid pan" id="grid">
+                    <div class="blank" id="cell1"></div>
+                    <div class="blank" id="cell2"></div>
+                    <div class="blank" id="cell2"></div>
+                    
+                    <div class="bar" id="bar-1">
+                        <span class="resize align-left"></span>
+                        <span class="resize align-right"></span>
+                    </div>
+    
+                  </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>
