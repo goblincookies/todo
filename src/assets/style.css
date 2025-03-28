@@ -74,7 +74,7 @@ li{ position: relative; }
 .hidden { visibility: hidden;}
 .hidden-x { visibility: hidden;}
 .border-right { border-right: 1px solid black; }
-/* .crop { overflow: hidden;} */
+.crop { overflow: hidden;}
 .pad { padding: 0.2rem; }
 .row { height: var(--cell);}
 li {
@@ -173,6 +173,7 @@ button { cursor: pointer; }
     width: auto;
 }
 .left {
+    background-color: var(--white);
     padding-left: 0.4rem;
     padding-right: 0.5rem;
     width: max(30%, min(40vw, 700px));
@@ -300,12 +301,20 @@ button { cursor: pointer; }
     -webkit-user-select: none;
     -ms-user-select: none;
 }
-
+.raised{
+    z-index: 1;
+}
 .is-dragging {
     background-color: var(--accent);
     outline: 5px solid var(--accent);
-    z-index: 10;
     box-shadow: 3px 10px 16px #00000031;
+}
+.is-dragging:has( .bar ) {
+    z-index: 9;
+}
+
+.is-dragging:not(:has(.bar )) {
+    z-index: 10;
 }
 
 /* #cell1{

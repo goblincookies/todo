@@ -1,12 +1,14 @@
 import "./assets/style.css";
 import { Task, Project, Converter } from "./assets/modules/DATAmanager";
 import { PageBuilder } from "./assets/modules/HTMLbuilder";
-import { DragToReorder } from "./assets/modules/Interactions";
+// import { DragToReorder, DragToResize } from "./assets/modules/Interactions";
 
 const pageBuilder = new PageBuilder();
 const project = new Project();
 const converter = new Converter();
-const dragManager = new DragToReorder();
+// const reorderManager = new DragToReorder();
+// const resizeManager = new DragToResize();
+
 
 let leftSec;
 let taskList;
@@ -49,8 +51,8 @@ function createNewTask( e ) {
     taskList.appendChild( pageBuilder.getHTML_Task( task ) );
     grid.appendChild( pageBuilder.getHTML_Bar( task ) );
 
-    dragManager.update();
-
+    // reorderManager.update();
+    // resizeManager.update();
     // leftSec.appendChild( pageBuilder.getHTML_Task() );
 
 };

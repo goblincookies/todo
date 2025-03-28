@@ -61,7 +61,7 @@ class PageBuilder {
         const firstDiv = this.createElement("div", "flex-h-left-bottom");
         const leftDiv = this.createElement("div", "left");
         const taskListUl = this.createElement("ul", "reorderable-list");
-        const rightDiv = this.createElement("div", "right crop");
+        const rightDiv = this.createElement("div", "right");
         const dateUl = this.createElement("ul", "date flex-h");
         const hourUl = this.createElement("ul", "hour flex-h");
         const gridUl = this.createElement("ul", "grid pan reorderable-bars");
@@ -142,7 +142,7 @@ class PageBuilder {
         const barDiv = this.createElement("div", "bar flex-h-spread");
         barDiv.id = "bar-" + task.id;
         const leftSpan = this.createElement("span", "resize align-left");
-        const centerSpan = this.createElement("span", "grab align-full");
+        const centerSpan = this.createElement("span", "slide grab align-full");
         const rightSpan = this.createElement("span", "resize align-right");
 
         barDiv.appendChild(leftSpan);

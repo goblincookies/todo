@@ -115,9 +115,7 @@ class Project {
 
         if (this.#database[id]) {
             delete this.#database[id];
-
             // RE ORDER THE TASKS
-
             return 0;
         };
         // DOESN'T EXIST
@@ -140,7 +138,7 @@ class Project {
         return new Task();
     };
 
-}
+};
 
 class Database {
 
