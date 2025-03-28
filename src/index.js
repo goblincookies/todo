@@ -53,7 +53,7 @@ function isItemToggled( item ) {
     return item.hasAttribute( 'data-is-toggled');
 };
 
-function createReorderableListeners() {
+function createListeners() {
     let classes = "drag-handle resize slide";
 
     classes.split(" ").forEach ( el => {
@@ -69,8 +69,8 @@ function createReorderableListeners() {
 
 };
 
-function updateReorder() {
-    createReorderableListeners();
+function updateListeners() {
+    createListeners();
 };
 
 
@@ -93,7 +93,7 @@ function setup () {
     const newTask = document.getElementById( "new-task" );
     newTask.addEventListener("click", createNewTask );
 
-    createReorderableListeners();
+    createListeners();
 
     document.addEventListener("mouseup", dragEnd );
     document.addEventListener("touchend", dragEnd);
@@ -287,7 +287,10 @@ function updateIdleItemsStateAndPosition(){
 const dragEnd = () => {
     console.log("Drag END");
     if (resizingBar){
-
+        resizeLeft = 0;
+        resizeRight = 0;
+        resizingBar = null;
+        resizingBarHTML = "";
     }
 
     if ( draggableItem[ obj.TASK ] ) {
@@ -388,11 +391,7 @@ function createNewTask( e ) {
     pageBuilder.writeCSS_Resize_Task( barHTML.querySelector(".bar"), task.startDate, task.endDate, gridStartDate, gridEndDate)
 
 
-    updateReorder();
-    // reorderManager.update();
-    // resizeManager.update();
-    // leftSec.appendChild( pageBuilder.getHTML_Task() );
-
+    updateListeners();
 };
 
 
