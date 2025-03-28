@@ -374,8 +374,18 @@ function enablePageScroll() {
     document.body.style.userSelect = '';
 };
 
-function writeTaskTitle( e ) {
+function deleteTask( e ) {
+    const id = e.currentTarget.id.split("-")[1];
+    const parentNode = e.currentTarget.parentNode;
+    let barNode = document.getElementById( `bar-${id}` ).parentNode;
+    
+    project.deleteTask( id );
+    parentNode.remove();
+    barNode.remove();
 
+};
+
+function writeTaskTitle( e ) {
     if (e.key === 'Enter') {
         console.log("enter");
 
@@ -433,6 +443,7 @@ function createNewTask( e ) {
     titleInput.focus();
     titleInput.select();
 
+    taskHTML.querySelector( "button.delete" ).addEventListener( 'click', deleteTask )
     // task.addEventListener('focus', editTaskTitle);
     titleInput.addEventListener( 'blur', writeTaskTitle );
     titleInput.addEventListener( 'keydown', writeTaskTitle );

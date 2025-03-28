@@ -124,8 +124,9 @@ class Project {
 
         if (this.#database[id]) {
             delete this.#database[id];
+            console.log( `successfully delete task number ${ id }`);
             // RE ORDER THE TASKS
-            return 0;
+            return;
         };
         // DOESN'T EXIST
         console.log(`database can't find that book(${id}), maybe it's already deleted?`);

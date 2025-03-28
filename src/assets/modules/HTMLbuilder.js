@@ -211,7 +211,8 @@ class PageBuilder {
 
         const mainDiv = this.createElement("li", "row flex-h-spread reorderable is-idle");
         mainDiv.id = `task-${task.id}`;
-        const delButton = this.createElement("button", "circle-button redbkg hidden");
+        const delButton = this.createElement("button", "delete circle-button redbkg hidden");
+        delButton.id = `del-${task.id}`;
         const delImg = this.createElement("img", "", fileClose);
         delButton.appendChild( delImg );
 
@@ -237,7 +238,7 @@ class PageBuilder {
         const titleH3 = this.createElement("h3", "text-sm bold trunc");
         const titleInput = this.createElement("Input", "title text-sm bold trunc");
         titleInput.id = `input-${task.id}`;
-        
+
         titleH3.textContent = task.title;
         titleInput.value = task.title;
 

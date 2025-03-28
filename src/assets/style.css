@@ -275,7 +275,7 @@ button { cursor: pointer; }
 .align-left{
     position: relative;
     left: -1rem;
-    background-color: #ffffff56;
+    background-color: transparent;
 }
 .align-full{
     /* position: relative; */
@@ -285,7 +285,7 @@ button { cursor: pointer; }
 .align-right{
     position: relative;
     right: -1rem;
-    background-color: #ffffff56;
+    background-color: transparent;
 
 }
 .oversize {
