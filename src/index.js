@@ -13,7 +13,6 @@ let leftSec;
 let taskList;
 let grid;
 
-
 const obj = {
     TASK:0,
     BARS:1
@@ -21,6 +20,13 @@ const obj = {
 
 let draggableList = [];
 let draggableItem = [];
+let resizingBar;
+let resizingBarHTML="";
+let resizeLeft = 0;
+let resizeRight = 0;
+let gridStartDate = 0;
+let gridEndDate = 1;
+
 let pointerStartX;
 let pointerStartY;
 let itemsGap = 0;
@@ -48,15 +54,19 @@ function isItemToggled( item ) {
 };
 
 function createReorderableListeners() {
-    let reorderableItems = document.querySelectorAll(".drag-handle");
-    if (!reorderableItems) return;
+    let classes = "drag-handle resize slide";
 
-    reorderableItems.forEach( item => {
-        console.log(item);
-        item.addEventListener("mousedown", dragStart);
-        item.addEventListener("touchstart", dragStart);
+    classes.split(" ").forEach ( el => {
 
+        let reorderableItems = document.querySelectorAll(`.${ el }`);
+        if (!reorderableItems) return;
+
+        reorderableItems.forEach( item => {
+            item.addEventListener("mousedown", dragStart);
+            item.addEventListener("touchstart", dragStart);
+        });
     });
+
 };
 
 function updateReorder() {
@@ -73,10 +83,14 @@ function setup () {
     leftSec = document.getElementById( "left" );
     taskList = document.getElementById( "task-list" );
     grid = document.getElementById("grid");
-    // leftSec = document.getElementById( "left" );
+
+    let today = new Date();
+    let startDate = new Date("0000-01-01");
+
+    gridStartDate = Math.round((today-startDate)/ 60000);
+    gridEndDate = gridStartDate + Math.floor((grid.offsetWidth));
+
     const newTask = document.getElementById( "new-task" );
-    
-    // NOT REGISTERING FOR SOME REASON!!
     newTask.addEventListener("click", createNewTask );
 
     createReorderableListeners();
@@ -85,33 +99,63 @@ function setup () {
     document.addEventListener("touchend", dragEnd);
 };
 
+function getResizeTask( node ) {
+    let bar = node.parentNode;
+    let id = bar.id.split("-")[1];
+    console.log( project.getTask( id ) );
+    return project.getTask( id );
+}
+
 // DRAG START
 const dragStart = (e) => {
     console.log("Drag Start!!");
 
     if (e.currentTarget.classList.contains("drag-handle")) {
-        // console.log(`found drag-handle!`);
         draggableItem[ obj.TASK ] = e.target.closest(".reorderable");
         let grabbedID = draggableItem[ obj.TASK ].id;
         grabbedID = grabbedID.split("-")[1];
         draggableItem[ obj.BARS ] = document.getElementById(`bar-${grabbedID}`).parentNode;
-        // console.log(draggableItem[obj.BARS])
 
         draggableList[ obj.TASK ] = e.target.closest(".reorderable-list");
         draggableList[ obj.BARS ] = document.querySelector(".reorderable-bars");
+        
+        if(!draggableItem[ obj.TASK ]) return;
 
+        pointerStartX = e.clientX || e.touches[0].clientX;
+        pointerStartY = e.clientY || e.touches[0].clientY;
+    
+        setItemsGap();
+        initItemState();
+        initDraggableItem();
     };
 
-    if(!draggableItem[ obj.TASK ]) return;
+    if (e.currentTarget.classList.contains("resize")) {
+        console.log("RESIZING!!");
+        resizingBarHTML = e.currentTarget.parentNode;
+        resizingBar = getResizeTask( e.currentTarget );
 
-    pointerStartX = e.clientX || e.touches[0].clientX;
-    pointerStartY = e.clientY || e.touches[0].clientY;
+        if(e.currentTarget.classList.contains("align-left")) {
+            resizeLeft = 1;
+            resizeRight = 0;
+        } else {
+            resizeLeft = 0;
+            resizeRight = 1;
+        };
+        pointerStartX = e.clientX || e.touches[0].clientX;
+        pointerStartY = e.clientY || e.touches[0].clientY;
+    };
 
-    setItemsGap();
+    if (e.currentTarget.classList.contains("slide")) {
+        console.log("SLIIIIDING!!")
+        resizingBarHTML = e.currentTarget.parentNode;
+        resizingBar = getResizeTask( e.currentTarget );
+        resizeLeft = 1;
+        resizeRight = 1;
+        pointerStartX = e.clientX || e.touches[0].clientX;
+        pointerStartY = e.clientY || e.touches[0].clientY;
+    };
+
     disablePageScroll();
-    initItemState();
-    initDraggableItem();
-
     document.addEventListener("mousemove", drag );
     document.addEventListener("touchmove", drag, {passive: false});
     console.log(`finished!`);
@@ -141,7 +185,6 @@ function disablePageScroll(){
 function initItemState() {
     Object.values( obj ).forEach( el => {
         getIdleItems( el ).forEach( (item, i) => {
-            console.log(item, i)
             if( getAllItems( el ).indexOf( draggableItem[ el ] ) > i ) {
                 item.dataset.isAbove = '';
             };
@@ -160,20 +203,37 @@ function initDraggableItem() {
 const drag = (e) => {
     console.log(`draggggging!!`);
     
-    if (!draggableItem[ obj.TASK ]) return;
-
-    e.preventDefault();
-
-    const clientX = e.clientX || e.touches[0].clientX;
-    const clientY = e.clientY || e.touches[0].clientY;
-
-    const pointerOffsetX = clientX - pointerStartX;
-    const pointerOffsetY = clientY - pointerStartY;
-
-    draggableItem[ obj.TASK ].style.transform = `translate(${pointerOffsetX}px, ${pointerOffsetY}px)`
-    draggableItem[ obj.BARS ].style.transform = `translateY(${pointerOffsetY}px)`;
+    if( draggableItem[ obj.TASK ]) {
+        e.preventDefault();
     
-    updateIdleItemsStateAndPosition( );
+        const clientX = e.clientX || e.touches[0].clientX;
+        const clientY = e.clientY || e.touches[0].clientY;
+    
+        const pointerOffsetX = clientX - pointerStartX;
+        const pointerOffsetY = clientY - pointerStartY;
+    
+        draggableItem[ obj.TASK ].style.transform = `translate(${pointerOffsetX}px, ${pointerOffsetY}px)`
+        draggableItem[ obj.BARS ].style.transform = `translateY(${pointerOffsetY}px)`;
+        
+        updateIdleItemsStateAndPosition( );
+    };
+    if( resizingBar ){
+
+        e.preventDefault();
+    
+        const clientX = e.clientX || e.touches[0].clientX;
+        const clientY = e.clientY || e.touches[0].clientY;
+    
+        const pointerOffsetX = clientX - pointerStartX;
+        // const pointerOffsetY = clientY - pointerStartY;
+        resizingBar.startDate += resizeLeft * (pointerOffsetX);
+        resizingBar.endDate += resizeRight * (pointerOffsetX);
+        pointerStartX = clientX;
+        pageBuilder.writeCSS_Resize_Task( resizingBarHTML, resizingBar.startDate, resizingBar.endDate, gridStartDate, gridEndDate)
+        // draggableItem[ obj.TASK ].style.transform = `translate(${pointerOffsetX}px, ${pointerOffsetY}px)`
+        // draggableItem[ obj.BARS ].style.transform = `translateY(${pointerOffsetY}px)`;
+    }
+
 };
 
 function updateIdleItemsStateAndPosition(){
@@ -226,16 +286,21 @@ function updateIdleItemsStateAndPosition(){
 // DRAG END
 const dragEnd = () => {
     console.log("Drag END");
-    if (!draggableItem[ obj.TASK ]) return;
+    if (resizingBar){
 
-    applyNewItemOrder();
-    cleanup();
+    }
+
+    if ( draggableItem[ obj.TASK ] ) {
+        applyNewItemOrder();
+        cleanup();
+    }
 
     document.removeEventListener("mousemove", drag );
     document.removeEventListener("touchmove", drag );
 };
 
 function applyNewItemOrder() {
+
     Object.values( obj ).forEach( el => {
 
         const reorderedItems = [];
@@ -272,7 +337,10 @@ function cleanup() {
     enablePageScroll();
     items = [];
     draggableList = [];
-    
+    resizeLeft = 0;
+    resizeRight = 0;
+    resizingBar = null;
+    resizingBarHTML = "";
     document.removeEventListener("mousemove", drag);
     document.removeEventListener("touchmove", drag);
 };
@@ -313,10 +381,11 @@ function createNewTask( e ) {
     task.startDate = taskStartDate + Math.floor( Math.random()*200 );
     task.endDate = taskStartDate + 450 + Math.floor( Math.random()*200 ); // * Math.floor( Math.random()*15 );
     task.title = task.startDate+"";
-    project.writeTask( task );
-    
+    project.writeTask( task );    
     taskList.appendChild( pageBuilder.getHTML_Task( task ) );
-    grid.appendChild( pageBuilder.getHTML_Bar( task ) );
+    const barHTML = pageBuilder.getHTML_Bar( task );
+    grid.appendChild( barHTML );
+    pageBuilder.writeCSS_Resize_Task( barHTML.querySelector(".bar"), task.startDate, task.endDate, gridStartDate, gridEndDate)
 
 
     updateReorder();

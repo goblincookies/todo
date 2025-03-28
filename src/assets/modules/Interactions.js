@@ -48,14 +48,13 @@ class DragToResize {
         if(e.currentTarget.classList.contains("resize")){
             console.log("RESIZING!!")
             let bar = e.currentTarget.parentNode;
-            this.draggableTask = 
         };
 
         if(e.target.classList.contains("slide")){
             console.log("SLIIIIDING!!")
         };
     };
-    
+
     // let draggedBar;
     // let draggedTask;
     // let mouseOrigin = { x:0,y:0 };

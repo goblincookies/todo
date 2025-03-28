@@ -167,7 +167,7 @@ class PageBuilder {
     };
 
     // allBars[-1], task.startDate, task.endDate, gridStartDate, gridEndDate
-    writeTransfomCSS( HTML, tS, tE, gS, gE ) {
+    writeCSS_Resize_Task( HTML, tS, tE, gS, gE ) {
         // console.log(`ts:${tS}, tE:${tE}, gS:${gS}, gE:${gE},`)
 
         let css = "";

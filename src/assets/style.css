@@ -279,17 +279,17 @@ button { cursor: pointer; }
     cursor: move;
 }
 #bar-0{
-    width: 500px;
+    /* width: 500px; */
     background-color: red;
 }
 #bar-1 {
-    transform: translateX(150px);
-    width: 250px;
+    /* transform: translateX(150px); */
+    /* width: 250px; */
     background-color: green;
 }
 #bar-2 {
-    transform: translateX(250px);
-    width: 380px;
+    /* transform: translateX(250px); */
+    /* width: 380px; */
     background-color: coral;
 }
 
