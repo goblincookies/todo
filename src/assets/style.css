@@ -200,7 +200,7 @@ button { cursor: pointer; }
 }
 .right {
     width: 100%;
-    /* overflow: hidden; */
+    overflow: hidden;
     position: relative;
 }
 /* .section{
@@ -305,12 +305,15 @@ button { cursor: pointer; }
     z-index: 1;
 }
 .is-dragging {
-    background-color: var(--accent);
-    outline: 5px solid var(--accent);
+    background-color: var(--gray3);
+    outline: 4px solid var(--gray3);
+    /* outline-offset: 4px; */
     box-shadow: 3px 10px 16px #00000031;
 }
 .is-dragging:has( .bar ) {
     z-index: 9;
+    overflow: visible;
+
 }
 
 .is-dragging:not(:has(.bar )) {

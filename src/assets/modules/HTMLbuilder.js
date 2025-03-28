@@ -64,7 +64,7 @@ class PageBuilder {
         const rightDiv = this.createElement("div", "right");
         const dateUl = this.createElement("ul", "date flex-h");
         const hourUl = this.createElement("ul", "hour flex-h");
-        const gridUl = this.createElement("ul", "grid pan reorderable-bars");
+        const gridUl = this.createElement("ul", "grid pan reorderable-bars oversize");
         const secDiv = this.createElement("div", "flex-h-left-bottom");
         const secLeftDiv = this.createElement("div", "left");
         const buttonHolderDiv = this.createElement("div", "flex-h-center");
@@ -184,6 +184,7 @@ class PageBuilder {
     getHTML_Task( task ) {
         if ( this.isNotTask( task ) ) { return 0; }
 
+        console.log( task )
         // <li class="row flex-h-spread reorderable isIdle" id = "task-1">
         //     <button class="circle-button redbkg hidden">
         //         <img src="./assets/images/close.svg" alt="">

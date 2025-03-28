@@ -8,6 +8,14 @@ class Task {
         CRIT:4
     }
 
+    #colorsAll = [
+        "#3cbcfc","#a4e4fc","#0000bc","#0058f8","#6888fc","#b8b8f8",
+        "#6844fc","#9878f8","#d8b8f8","#940084","#d800cc","#f878f8",
+        "#a80020","#e40058","#f85898","#f8a4c0","#a81000","#f83800",
+        "#f0d0b0","#881400","#e45c10","#fca044","#fce0a8","#503000",
+        "#f8b800","#f8d878","#007800","#00b800","#b8f818","#d8f878",
+        "#00a800","#58d854","#b8f8b8","#005800","#00a844","#58f898",
+        "#004058","#008888","#00e8d8","#00fcfc","#f8d8f8","#787878",];
     #taskID = -1;
     #priority = 0;
     #isSection = false;
@@ -16,10 +24,11 @@ class Task {
     #startDate = 3; //1-96 >> 0-24hrs * 4
     #endDate = 15;
     // #startDate = 0; // FORMALIZE LATER
-    #color = "#6da9bb";
+    #color = "";
     #shift = 0;
     
     constructor () {
+        this.#color = this.#colorsAll[ Math.floor( Math.random() * this.#colorsAll.length ) ];
     };
 
     set id (val) { this.#taskID = val; };
