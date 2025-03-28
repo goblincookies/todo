@@ -135,7 +135,6 @@ class Project {
         if ( this.isNotTask(task) ) { return 0; }
 
         if ( task.id < 0 ) { task.id = this.#database.length; };
-        task.shift = this.#shift;
         console.log(`writing task to Project database, id ${ task.id }, ${ task.title } `);
         this.#database[ task.id ] = task;
     };

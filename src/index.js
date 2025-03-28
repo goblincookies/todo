@@ -18,6 +18,7 @@ const obj = {
     BARS:1
 };
 
+let editSave = true;
 let draggableList = [];
 let draggableItem = [];
 let resizingBar;
@@ -373,6 +374,42 @@ function enablePageScroll() {
     document.body.style.userSelect = '';
 };
 
+function writeTaskTitle( e ) {
+
+    if (e.key === 'Enter') {
+        console.log("enter");
+
+        e.target.blur();
+        return;
+    };
+
+    if (e.key === 'Escape') {
+        console.log("escape");
+
+        const id = e.currentTarget.id.split("-")[1];
+        const task = project.getTask( id );
+        e.currentTarget.value = task.title;
+
+        editSave = false;
+        e.target.blur();
+        return;
+    };
+
+    if( e.type == "blur" ) {
+
+        if( editSave ) {
+            console.log('saving to database');
+            const id = e.currentTarget.id.split("-")[1];
+            const task = project.getTask( id );
+            task.title = e.currentTarget.value;
+            project.writeTask( task );
+        };
+        editSave = true;
+        return
+    };
+
+}
+
 function createNewTask( e ) {
     console.log("new task!")
     let today = new Date();
@@ -384,14 +421,24 @@ function createNewTask( e ) {
     task.startDate = taskStartDate + Math.floor( Math.random()*200 );
     task.endDate = taskStartDate + 450 + Math.floor( Math.random()*200 ); // * Math.floor( Math.random()*15 );
     task.title = task.startDate+"";
-    project.writeTask( task );    
-    taskList.appendChild( pageBuilder.getHTML_Task( task ) );
+    project.writeTask( task );
+
+    const taskHTML = pageBuilder.getHTML_Task( task );
+    taskList.appendChild( taskHTML );
     const barHTML = pageBuilder.getHTML_Bar( task );
     grid.appendChild( barHTML );
-    pageBuilder.writeCSS_Resize_Task( barHTML.querySelector(".bar"), task.startDate, task.endDate, gridStartDate, gridEndDate)
+    pageBuilder.writeCSS_Resize_Task( barHTML.querySelector(".bar"), task.startDate, task.endDate, gridStartDate, gridEndDate )
 
+    const titleInput = taskHTML.querySelector("input.title");
+    titleInput.focus();
+    titleInput.select();
+
+    // task.addEventListener('focus', editTaskTitle);
+    titleInput.addEventListener( 'blur', writeTaskTitle );
+    titleInput.addEventListener( 'keydown', writeTaskTitle );
 
     updateListeners();
+    
 };
 
 

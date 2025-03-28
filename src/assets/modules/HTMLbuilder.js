@@ -200,7 +200,8 @@ class PageBuilder {
         //         </button>
 
         //         <input type="checkbox" name="" id="">
-        //         <h3 class="text-sm bold trunc">buy a new amp!!!</h3>
+        //         <input class="title text-sm bold trunc" type="text" value="buy a new amp!!!">
+        //         **<h3 class="text-sm bold trunc">buy a new amp!!!</h3>**
         //         <p class="time text-sm">41h 15m</p>
         //         <button class="div-button">
         //             <div class="color hidden"></div>
@@ -234,8 +235,12 @@ class PageBuilder {
         taskDiv.appendChild( completedCheck );
         
         const titleH3 = this.createElement("h3", "text-sm bold trunc");
-
+        const titleInput = this.createElement("Input", "title text-sm bold trunc");
+        titleInput.id = `input-${task.id}`;
+        
         titleH3.textContent = task.title;
+        titleInput.value = task.title;
+
         const durationP = this.createElement("p", "time text-sm");
         durationP.textContent = task.duration;
         const colorButton = this.createElement("button", "div-button");
@@ -246,7 +251,7 @@ class PageBuilder {
         colorDiv.style.backgroundColor = task.color;
         colorButton.appendChild(colorDiv);
 
-        taskDiv.appendChild( titleH3 );
+        taskDiv.appendChild( titleInput );
         taskDiv.appendChild( durationP );
         taskDiv.appendChild( colorButton );
         

@@ -81,7 +81,6 @@ li {
     list-style-type: none;
     height: var(--cell);
 }
-
 img{
     width: auto;
     height: 100%;
@@ -117,10 +116,11 @@ img{
     align-items: center;
     gap: 0.5rem;
 }
-.section > h3 {
+
+/* .section > h3 {
     justify-self: flex-start;
     flex-grow: 1;
-}
+} */
 .task > h3 {
     justify-self: flex-start;
     flex-grow: 1;
@@ -128,6 +128,23 @@ img{
 .icon-lg {
     height: 5rem;
     width: auto;
+}
+input.title{
+    padding: 4px;
+    border: none;
+    background-color: transparent;
+
+    /* outline: none; */
+    /* background-color: red; */
+}
+input.title:hover{
+}
+input.title:focus{
+    /* margin: 4px; */
+    /* outline-offset: 4px; */
+    outline: 2px solid var(--accent);
+    background-color: var(--white);
+
 }
 button { cursor: pointer; }
 .grab { cursor: grab; }
