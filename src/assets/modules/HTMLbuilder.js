@@ -63,7 +63,7 @@ class PageBuilder {
         const taskListUl = this.createElement("ul", "reorderable-list");
         const rightDiv = this.createElement("div", "right");
         const dateUl = this.createElement("ul", "date flex-h");
-        const hourUl = this.createElement("ul", "hour flex-h");
+        const hourUl = this.createElement("ul", "hour flex-h oversize");
         const gridUl = this.createElement("ul", "grid pan reorderable-bars oversize");
         const secDiv = this.createElement("div", "flex-h-left-bottom");
         const secLeftDiv = this.createElement("div", "left");
@@ -111,10 +111,11 @@ class PageBuilder {
         return mainDiv;
     }
 
-    getHTML_Hour( hourText ) {
-        // <h3 class="text-sm">21</h3>
-        const mainDiv = this.createElement("h3", "hour text-sm");
-        mainDiv.textContent = hourText;
+    getHTML_Hour( rawTime, convertedTime ) {
+        // <li class="text-sm" id="1004236">21</li>
+        const mainDiv = this.createElement("li", "hour text-sm border-left");
+        mainDiv.id = rawTime;
+        mainDiv.textContent = convertedTime;
         return mainDiv;
     }
 
@@ -166,19 +167,27 @@ class PageBuilder {
         HTML.classList.add("hidden");
     };
 
+    writeCSS_Even_Hour( HTML, i, w, p ) {
+        // const rect = HTML.getBoundingClientRect();
+        // console.log(rect.width)
+        HTML.style.transform = `translateX( ${ (i*w)-p }px)`;
+        // HTML.style.transform = `translateX( ${ (i*w)}px)`;
+
+    };
+
     // allBars[-1], task.startDate, task.endDate, gridStartDate, gridEndDate
     writeCSS_Resize_Task( HTML, tS, tE, gS, gE ) {
-        // console.log(`ts:${tS}, tE:${tE}, gS:${gS}, gE:${gE},`)
+        console.log(`ts:${tS}, tE:${tE}, gS:${gS}, gE:${gE},`)
 
-        let css = "";
+        // let css = "";
         let start = Math.max( tS, gS );
         let end = Math.min( gE, tE );
         // console.log(`HTML: ${HTML},`);
-        HTML.style.width = `${end-start}px`;
+        HTML.style.width = `${ end-start }px`;
         // console.log(`transform should be: translateX( ${tS-gS}px)`);
-        HTML.style.transform = `translateX( ${tS-gS}px)`;
+        HTML.style.transform = `translateX( ${ tS-gS }px)`;
         HTML.classList.remove("hidden");
-        return css;
+        return;
     }
 
     getHTML_Task( task ) {

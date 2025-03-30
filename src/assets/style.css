@@ -74,12 +74,21 @@ li{ position: relative; }
 .hidden { visibility: hidden;}
 .hidden-x { visibility: hidden;}
 .border-right { border-right: 1px solid black; }
+.border-left { border-left: 1px solid var(--gray3); }
+
 .crop { overflow: hidden;}
 .pad { padding: 0.2rem; }
 .row { height: var(--cell);}
 li {
     list-style-type: none;
     height: var(--cell);
+}
+ul.hour,
+li.hour {
+    height: var(--bar);
+}
+li.hour {
+    padding-left: .2rem;
 }
 img{
     width: auto;
@@ -251,12 +260,6 @@ button { cursor: pointer; }
     /* background-color: var(--gray4); */
 }
 
-.hour-marker {
-    display: inline-block;
-    height: 250px;
-    background-color: red;
-
-}
 .grid {
     margin-left: 1rem;
 }

@@ -11,7 +11,8 @@ const converter = new Converter();
 
 let leftSec;
 let taskList;
-let grid;
+let gridUL;
+let hourUL;
 
 const obj = {
     TASK:0,
@@ -25,8 +26,14 @@ let resizingBar;
 let resizingBarHTML="";
 let resizeLeft = 0;
 let resizeRight = 0;
-let gridStartDate = 0;
-let gridEndDate = 1;
+let startTime = new Date();
+let endTime = new Date();
+let snapRes = 15;
+// let gridStartRaw = 0;
+// let gridEndRaw = 1;
+// let gridStart = 0;
+// let gridEnd = 0;
+
 
 let pointerStartX;
 let pointerStartY;
@@ -74,6 +81,66 @@ function updateListeners() {
     createListeners();
 };
 
+function timeToRawHours( t ) {
+    if( !( t instanceof Date ) ){
+        console.log("not a date");
+        return;
+    };
+    return Math.round( t/1000/60/60 );
+};
+
+function timeToRawMinutes( t ) {
+    if( !( t instanceof Date ) ){
+        console.log("not a date");
+        return;
+    };
+    return Math.round( t/1000/60 );
+};
+
+function timeToHours( t ) {
+    if( !( t instanceof Date ) ){
+        console.log("not a date");
+        return;
+    };
+    return t.getHours();
+};
+
+function getNewEndTime( start, end ) {
+    if( !( start instanceof Date || end instanceof Date ) ){
+        console.log("not a date");
+        return;
+    };
+    let time = new Date();
+    let widthAsHours = Math.floor( ( gridUL.offsetWidth / 60 ) );
+
+    time.setTime( start.getTime() + (widthAsHours*60*60*1000) )
+    return time;
+};
+
+function setupHours(){
+    hourUL.textContent = "";
+
+    // let s = timeToHours( startTime );
+    let n = Math.abs(startTime-endTime)/(60*60*1000);
+    // console.log(`n ${n}`)
+    let tempTime = new Date();
+    tempTime.setTime( startTime.getTime() + ( -1*60*60*1000 ) );
+
+    let hoursRaw;
+    let hoursConv;
+    let prevWidth = 0;
+
+    for( let i = 1; i <= n; i++ ) {
+        tempTime.setTime( tempTime.getTime() + ( 1*60*60*1000 ) );
+        hoursRaw = timeToRawHours( tempTime );
+        hoursConv = timeToHours( tempTime )
+        let hourHTML = pageBuilder.getHTML_Hour( hoursRaw, hoursConv )
+        hourUL.appendChild( hourHTML );
+        pageBuilder.writeCSS_Even_Hour( hourHTML, i, 60, prevWidth );
+        prevWidth += hourHTML.getBoundingClientRect().width;
+    };
+
+}
 
 function setup () {
     // const taskBuilder = new TaskBuilder();
@@ -83,13 +150,15 @@ function setup () {
     content.appendChild( pageBuilder.getHTML_ProjectPage() );
     leftSec = document.getElementById( "left" );
     taskList = document.getElementById( "task-list" );
-    grid = document.getElementById("grid");
+    gridUL = document.getElementById("grid");
+    hourUL = document.getElementById("hour");
 
-    let today = new Date();
-    let startDate = new Date("0000-01-01");
-
-    gridStartDate = Math.round((today-startDate)/ 60000);
-    gridEndDate = gridStartDate + Math.floor((grid.offsetWidth));
+    // startTime = new Date();
+    // endTime = new Date();
+    startTime.setTime( startTime.getTime() + (-3*60*60*1000) )
+    endTime = getNewEndTime( startTime, endTime );
+    console.log(`endTime: ${endTime} ${ endTime instanceof Date}`)
+    setupHours();
 
     const newTask = document.getElementById( "new-task" );
     newTask.addEventListener("click", createNewTask );
@@ -224,13 +293,26 @@ const drag = (e) => {
     
         const clientX = e.clientX || e.touches[0].clientX;
         const clientY = e.clientY || e.touches[0].clientY;
-    
+
         const pointerOffsetX = clientX - pointerStartX;
-        // const pointerOffsetY = clientY - pointerStartY;
-        resizingBar.startDate += resizeLeft * (pointerOffsetX);
-        resizingBar.endDate += resizeRight * (pointerOffsetX);
-        pointerStartX = clientX;
-        pageBuilder.writeCSS_Resize_Task( resizingBarHTML, resizingBar.startDate, resizingBar.endDate, gridStartDate, gridEndDate)
+        let snap = Math.sign( pointerOffsetX ) * Math.floor( Math.abs(pointerOffsetX)/snapRes)*15;
+        console.log( `snapPos: ${ snap }` );
+
+        // const pointerOffsetX = Math.floor( (clientX - pointerStartX)/snapRes) * snapRes;
+        if ( Math.abs( snap) > 0 ) {
+            // resizingBar.startMin += resizeLeft * (pointerOffsetX);
+            // resizingBar.endMin += resizeRight * (pointerOffsetX);
+            resizingBar.startMin += resizeLeft * ( snap );
+            resizingBar.endMin += resizeRight * ( snap );
+            pointerStartX = clientX;
+            pageBuilder.writeCSS_Resize_Task(
+                resizingBarHTML,
+                resizingBar.startMin, resizingBar.endMin,
+                timeToRawMinutes( startTime ),
+                timeToRawMinutes( endTime )
+            )
+
+        }
         // draggableItem[ obj.TASK ].style.transform = `translate(${pointerOffsetX}px, ${pointerOffsetY}px)`
         // draggableItem[ obj.BARS ].style.transform = `translateY(${pointerOffsetY}px)`;
     }
@@ -378,7 +460,7 @@ function deleteTask( e ) {
     const id = e.currentTarget.id.split("-")[1];
     const parentNode = e.currentTarget.parentNode;
     let barNode = document.getElementById( `bar-${id}` ).parentNode;
-    
+
     project.deleteTask( id );
     parentNode.remove();
     barNode.remove();
@@ -422,23 +504,37 @@ function writeTaskTitle( e ) {
 
 function createNewTask( e ) {
     console.log("new task!")
-    let today = new Date();
-    let startDate = new Date("0000-01-01");
+    console.log( `startTime ${ startTime instanceof Date}` )
+    console.log( `endTime ${ endTime instanceof Date}` )
+
+    let now = new Date();
+    // let startDate = new Date("0000-01-01");
 
     let task = new Task();
-    let taskStartDate = Math.round((today-startDate)/ 60000);
-    
-    task.startDate = taskStartDate + Math.floor( Math.random()*200 );
-    task.endDate = taskStartDate + 450 + Math.floor( Math.random()*200 ); // * Math.floor( Math.random()*15 );
-    task.title = task.startDate+"";
+    now.setTime( now.getTime() + ((1 + Math.floor(Math.random()*3))*60*60*1000) )
+    task.startMin = timeToRawMinutes( now );
+
+    now.setTime( now.getTime() + ((1 + Math.floor(Math.random()*6))*60*60*1000) )
+    task.endMin = timeToRawMinutes( now );
+
+    task.title = task.startMin+"";
     project.writeTask( task );
 
     const taskHTML = pageBuilder.getHTML_Task( task );
     taskList.appendChild( taskHTML );
     const barHTML = pageBuilder.getHTML_Bar( task );
-    grid.appendChild( barHTML );
-    pageBuilder.writeCSS_Resize_Task( barHTML.querySelector(".bar"), task.startDate, task.endDate, gridStartDate, gridEndDate )
+    gridUL.appendChild( barHTML );
 
+    console.log("time here:")
+    
+
+    pageBuilder.writeCSS_Resize_Task(
+        barHTML.querySelector(".bar"),
+        task.startMin, task.endMin,
+        timeToRawMinutes( startTime ),
+        timeToRawMinutes( endTime )
+    );
+ 
     const titleInput = taskHTML.querySelector("input.title");
     titleInput.focus();
     titleInput.select();

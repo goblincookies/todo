@@ -21,8 +21,10 @@ class Task {
     #isSection = false;
     #isComplete = false;
     #title = "New Row Title";
-    #startDate = 3; //1-96 >> 0-24hrs * 4
-    #endDate = 15;
+    #startMin = 0;
+    #endMin = 0;
+    // #startDate = 3; //1-96 >> 0-24hrs * 4
+    // #endDate = 15;
     // #startDate = 0; // FORMALIZE LATER
     #color = "";
     #shift = 0;
@@ -43,17 +45,17 @@ class Task {
     set title (val) { if ( typeof val == 'string' ){  this.#title = val; }; };
     get title () { return this.#title; };
 
-    set startDate (val) { if ( typeof val == 'number' ){
-        console.log(`writing start time! time is ${val}`)
-        this.#startDate = val; }; };
-    get startDate () { return this.#startDate; };
+    set startMin (val) { if ( typeof val == 'number' ){
+        console.log(`writing start time! time is ${ val }`)
+        this.#startMin = val; }; };
+    get startMin () { return this.#startMin; };
 
-    set endDate (val) { if ( typeof val == 'number' ){  this.#endDate = val; }; };
-    get endDate () { return this.#endDate; };
+    set endMin (val) { if ( typeof val == 'number' ){  this.#endMin = val; }; };
+    get endMin () { return this.#endMin; };
 
     get duration () {
-        let sec = this.#endDate - this.#startDate;
-        let min = Math.floor(sec / 60);
+        // let sec = this.#endMin - this.#startMin;
+        let min = Math.floor(this.#endMin - this.#startMin );
         return `${min}m`;
     }
 
