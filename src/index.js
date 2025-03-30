@@ -296,7 +296,7 @@ const drag = (e) => {
 
         const pointerOffsetX = clientX - pointerStartX;
         let snap = Math.sign( pointerOffsetX ) * Math.floor( Math.abs(pointerOffsetX)/snapRes)*15;
-        console.log( `snapPos: ${ snap }` );
+        // console.log( `snapPos: ${ snap }` );
 
         // const pointerOffsetX = Math.floor( (clientX - pointerStartX)/snapRes) * snapRes;
         if ( Math.abs( snap) > 0 ) {
@@ -310,14 +310,20 @@ const drag = (e) => {
                 resizingBar.startMin, resizingBar.endMin,
                 timeToRawMinutes( startTime ),
                 timeToRawMinutes( endTime )
-            )
-
-        }
+            );
+            
+            updateDuration( resizingBar );
+        };
         // draggableItem[ obj.TASK ].style.transform = `translate(${pointerOffsetX}px, ${pointerOffsetY}px)`
         // draggableItem[ obj.BARS ].style.transform = `translateY(${pointerOffsetY}px)`;
-    }
+    };
 
 };
+
+function updateDuration( task ) {
+    const HTML = document.getElementById( `task-${task.id}` );
+    HTML.querySelector( ".time" ).textContent = task.duration;
+}
 
 function updateIdleItemsStateAndPosition(){
     const draggableItemRect = draggableItem[ obj.TASK ].getBoundingClientRect();

@@ -50,7 +50,18 @@ class Task {
         this.#startMin = val; }; };
     get startMin () { return this.#startMin; };
 
-    set endMin (val) { if ( typeof val == 'number' ){  this.#endMin = val; }; };
+    // set endMin (val) { if ( typeof val == 'number' ){ this.#endMin = val; }; };
+    
+    set endMin (val) {
+        if ( typeof val == 'number' ){
+            if ( val - this.#startMin <= 0) {
+
+                console.log( `too small, ${this.#startMin} --/-- ${ val }` );
+                return;
+            }
+            this.#endMin = val;        
+        };
+    };
     get endMin () { return this.#endMin; };
 
     get duration () {
