@@ -75,7 +75,7 @@ li{ position: relative; }
 .hidden-x { visibility: hidden;}
 .border-right { border-right: 1px solid black; }
 .border-left { border-left: 1px solid var(--gray3); }
-
+ul { position: relative; }
 .crop { overflow: hidden;}
 .pad { padding: 0.2rem; }
 .row { height: var(--cell);}
@@ -88,6 +88,8 @@ li.hour {
     height: var(--bar);
 }
 li.hour {
+    top: 0;
+    position: absolute;
     padding-left: .2rem;
 }
 img{

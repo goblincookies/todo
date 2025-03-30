@@ -29,6 +29,7 @@ let resizeRight = 0;
 let startTime = new Date();
 let endTime = new Date();
 let snapRes = 15;
+let panning = false;
 // let gridStartRaw = 0;
 // let gridEndRaw = 1;
 // let gridStart = 0;
@@ -62,7 +63,7 @@ function isItemToggled( item ) {
 };
 
 function createListeners() {
-    let classes = "drag-handle resize slide";
+    let classes = "drag-handle resize slide pan";
 
     classes.split(" ").forEach ( el => {
 
@@ -105,8 +106,8 @@ function timeToHours( t ) {
     return t.getHours();
 };
 
-function getNewEndTime( start, end ) {
-    if( !( start instanceof Date || end instanceof Date ) ){
+function getNewEndTime( start ) {
+    if( !( start instanceof Date) ){
         console.log("not a date");
         return;
     };
@@ -121,24 +122,39 @@ function setupHours(){
     hourUL.textContent = "";
 
     // let s = timeToHours( startTime );
-    let n = Math.abs(startTime-endTime)/(60*60*1000);
+    let n = Math.abs(startTime-endTime)/(60*60*1000)-2;
     // console.log(`n ${n}`)
     let tempTime = new Date();
-    tempTime.setTime( startTime.getTime() + ( -1*60*60*1000 ) );
+    tempTime.setTime( startTime.getTime() );
+
+    // tempTime.setTime( startTime.getTime() + ( -1*60*60*1000 ) );
 
     let hoursRaw;
     let hoursConv;
     let prevWidth = 0;
 
-    for( let i = 1; i <= n; i++ ) {
-        tempTime.setTime( tempTime.getTime() + ( 1*60*60*1000 ) );
-        hoursRaw = timeToRawHours( tempTime );
+    for( let i = 0; i < n; i++ ) {
+
+        hoursRaw = timeToRawMinutes( tempTime );
         hoursConv = timeToHours( tempTime )
+        
         let hourHTML = pageBuilder.getHTML_Hour( hoursRaw, hoursConv )
         hourUL.appendChild( hourHTML );
-        pageBuilder.writeCSS_Even_Hour( hourHTML, i, 60, prevWidth );
-        prevWidth += hourHTML.getBoundingClientRect().width;
+        pageBuilder.writeCSS_Hour( hourHTML, hoursRaw, timeToRawMinutes( startTime ) );
+
+        tempTime.setTime( tempTime.getTime() + ( 1*60*60*1000 ) );
     };
+
+
+    // for( let i = 1; i <= n; i++ ) {
+    //     tempTime.setTime( tempTime.getTime() + ( 1*60*60*1000 ) );
+    //     hoursRaw = timeToRawHours( tempTime );
+    //     hoursConv = timeToHours( tempTime )
+    //     let hourHTML = pageBuilder.getHTML_Hour( hoursRaw, hoursConv )
+    //     hourUL.appendChild( hourHTML );
+    //     pageBuilder.writeCSS_Even_Hour( hourHTML, i, 60, prevWidth );
+    //     prevWidth += hourHTML.getBoundingClientRect().width;
+    // };
 
 }
 
@@ -156,7 +172,7 @@ function setup () {
     // startTime = new Date();
     // endTime = new Date();
     startTime.setTime( startTime.getTime() + (-3*60*60*1000) )
-    endTime = getNewEndTime( startTime, endTime );
+    endTime = getNewEndTime( startTime );
     console.log(`endTime: ${endTime} ${ endTime instanceof Date}`)
     setupHours();
 
@@ -167,6 +183,31 @@ function setup () {
 
     document.addEventListener("mouseup", dragEnd );
     document.addEventListener("touchend", dragEnd);
+    window.addEventListener('resize', resize);
+};
+
+function resize( e ) {
+
+    endTime = getNewEndTime( startTime );
+    setupHours();
+
+    const allTasks = project.getAll();
+    allTasks.forEach( task => {
+        const HTML = document.getElementById( `bar-${ task.id }` );
+        pageBuilder.writeCSS_Resize_Task(
+            HTML,
+            task.startMin, task.endMin,
+            timeToRawMinutes( startTime ),
+            timeToRawMinutes( endTime )
+        );
+    });
+
+    // gridCellCount = Math.floor(gridSec.offsetWidth / cell );
+    // --cell: 32px;
+    // grid-template-columns: repeat(36, var(--cell));
+    // gridSec.style.gridTemplateColumns = `repeat( ${ gridCellCount } , ${ cell }px )`;
+    // grid-template-columns: repeat( calc(36/4), calc( var(--cell) * 4) );
+    // hourSec.style.gridTemplateColumns = `repeat( ${ Math.floor(gridCellCount/4)+1 } , ${ cell*4 }px )`;
 };
 
 function getResizeTask( node ) {
@@ -225,6 +266,13 @@ const dragStart = (e) => {
         pointerStartY = e.clientY || e.touches[0].clientY;
     };
 
+    if (! resizingBar && e.currentTarget.classList.contains("pan")) {
+        console.log("PANNING!!")
+        panning = true;
+        pointerStartX = e.clientX || e.touches[0].clientX;
+        pointerStartY = e.clientY || e.touches[0].clientY;
+    };
+
     disablePageScroll();
     document.addEventListener("mousemove", drag );
     document.addEventListener("touchmove", drag, {passive: false});
@@ -271,7 +319,7 @@ function initDraggableItem() {
 
 // DRAG
 const drag = (e) => {
-    console.log(`draggggging!!`);
+    // console.log(`draggggging!!`);
     
     if( draggableItem[ obj.TASK ]) {
         e.preventDefault();
@@ -317,6 +365,75 @@ const drag = (e) => {
         // draggableItem[ obj.TASK ].style.transform = `translate(${pointerOffsetX}px, ${pointerOffsetY}px)`
         // draggableItem[ obj.BARS ].style.transform = `translateY(${pointerOffsetY}px)`;
     };
+
+    if ( panning ){
+        const clientX = e.clientX || e.touches[0].clientX;
+        const clientY = e.clientY || e.touches[0].clientY;
+
+        const pointerOffsetX = clientX - pointerStartX;
+        startTime.setTime( startTime.getTime() + ( -pointerOffsetX*60*1000 ) );
+        endTime = getNewEndTime( startTime, endTime );
+        
+        pointerStartX = clientX;
+        const allTasks = project.getAll();
+
+        allTasks.forEach( task => {
+            const HTML = document.getElementById( `bar-${ task.id }` );
+            pageBuilder.writeCSS_Resize_Task(
+                HTML,
+                task.startMin, task.endMin,
+                timeToRawMinutes( startTime ),
+                timeToRawMinutes( endTime )
+            );
+        });
+
+        const allHours = hourUL.querySelectorAll("li");
+        const firstID = parseInt( allHours[0].id );
+        const firstHr = parseInt( allHours[0].textContent );
+        const lastID = parseInt( allHours[ allHours.length - 1 ].id );
+        const lastHr = parseInt( allHours[ allHours.length - 1 ].textContent );
+
+
+        console.log(`checking against ${timeToRawMinutes(startTime)} // ${timeToRawMinutes(endTime)}`)
+        allHours.forEach( hr => {
+            //hr.id == time
+            // console.log(`HOUR id: ${} startTime: ${startTime}`)
+            
+            if( parseInt(hr.id) > timeToRawMinutes( endTime ) ) {
+                //put in front!
+                console.log( `moving to front ${hr.id}` );
+                // hr.id = parseInt(allHours[0].id) - 60;
+                hr.id = firstID - 60;
+                
+                let newHour = firstHr - 1;
+                if( newHour < 0 ) { newHour = 23; };
+                hr.textContent = newHour;
+
+                console.log( `new id ${hr.id}` );
+                hourUL.prepend( hr );
+            } else  if( parseInt( hr.id ) < timeToRawMinutes( startTime ) ) {
+                // put to end!!
+                console.log( `moving to back ${ hr.id }` );
+                console.log( hr );
+                
+                // console.log( allHours[ allHours.length - 1 ] )
+
+                hr.id = lastID + 60;
+                
+                let newHour = lastHr + 1;
+                if( newHour > 23 ) { newHour = 0; };
+                hr.textContent = newHour;
+
+                console.log( `new id ${hr.id}` );
+                hourUL.appendChild( hr );
+            };
+
+            pageBuilder.writeCSS_Hour( hr, hr.id, timeToRawMinutes(startTime) )
+
+        });
+    };
+
+
 
 };
 
@@ -380,12 +497,14 @@ const dragEnd = () => {
         resizeRight = 0;
         resizingBar = null;
         resizingBarHTML = "";
-    }
+    };
 
     if ( draggableItem[ obj.TASK ] ) {
         applyNewItemOrder();
         cleanup();
-    }
+    };
+
+    panning = false;
 
     document.removeEventListener("mousemove", drag );
     document.removeEventListener("touchmove", drag );
@@ -514,10 +633,12 @@ function createNewTask( e ) {
     console.log( `endTime ${ endTime instanceof Date}` )
 
     let now = new Date();
+    var minRound = 1000*60*5;
+    now.setTime( Math.round( now.getTime() / minRound ) * minRound ); 
     // let startDate = new Date("0000-01-01");
 
     let task = new Task();
-    now.setTime( now.getTime() + ((1 + Math.floor(Math.random()*3))*60*60*1000) )
+    // now.setTime( now.getTime() + ((1 + Math.floor(Math.random()*3))*60*60*1000) )
     task.startMin = timeToRawMinutes( now );
 
     now.setTime( now.getTime() + ((1 + Math.floor(Math.random()*6))*60*60*1000) )

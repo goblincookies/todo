@@ -160,6 +160,8 @@ class Project {
         return new Task();
     };
 
+    getAll() { return this.#database; }
+
 };
 
 class Database {
