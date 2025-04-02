@@ -9,13 +9,71 @@ class Task {
     }
 
     #colorsAll = [
-        "#3cbcfc","#a4e4fc","#0000bc","#0058f8","#6888fc","#b8b8f8",
-        "#6844fc","#9878f8","#d8b8f8","#940084","#d800cc","#f878f8",
-        "#a80020","#e40058","#f85898","#f8a4c0","#a81000","#f83800",
-        "#f0d0b0","#881400","#e45c10","#fca044","#fce0a8","#503000",
-        "#f8b800","#f8d878","#007800","#00b800","#b8f818","#d8f878",
-        "#00a800","#58d854","#b8f8b8","#005800","#00a844","#58f898",
-        "#004058","#008888","#00e8d8","#00fcfc","#f8d8f8","#787878",];
+        "#0000fc",
+        "#0078f8",
+        "#3cbcfc",
+        "#a4e4fc",
+        
+        "#0000bc",
+        "#0058f8",
+        "#6888fc",
+        "#b8b8f8",
+
+        "#4428bc",
+        "#6844fc",
+        "#9878f8",
+        "#d8b8f8",
+        
+        "#940084",
+        "#d800cc",
+        "#f878f8",
+        "#f8b8f8",
+
+        "#a80020",
+        "#e40058",
+        "#f85898",
+        "#f8a4c0",
+
+        "#a81000",
+        "#f83800",
+        "#f87858",
+        "#f0d0b0",
+
+        "#881400",
+        "#e45c10",
+        "#fca044",
+        "#fce0a8",
+
+        "#503000",
+        "#ac7c00",
+        "#f8b800",
+        "#f8d878",
+
+        "#007800",
+        "#00b800",
+        "#b8f818",
+        "#d8f878",
+
+        "#006800",
+        "#00a800",
+        "#58d854",
+        "#b8f8b8",
+
+
+        "#005800",
+        "#00a844",
+        "#58f898",
+        "#b8f8d8",
+
+        "#004058",
+        "#008888",
+        "#00e8d8",
+        "#00fcfc"
+
+
+
+    ];
+
     #taskID = -1;
     #priority = 0;
     #isSection = false;
@@ -27,10 +85,12 @@ class Task {
     // #endDate = 15;
     // #startDate = 0; // FORMALIZE LATER
     #color = "";
+    #colorIndex = 0;
     #shift = 0;
     
     constructor () {
-        this.#color = this.#colorsAll[ Math.floor( Math.random() * this.#colorsAll.length ) ];
+        this.#colorIndex = Math.floor( Math.random() * this.#colorsAll.length );
+        this.#color = this.#colorsAll[ this.#colorIndex ];
     };
 
     set id (val) { this.#taskID = val; };
@@ -75,6 +135,8 @@ class Task {
 
     set color (val) { if (typeof val == 'string' ){  this.#color = val; }; };
     get color () { return this.#color; };
+    get colorIndex () { return this.#colorIndex; };
+    get allColors () { return this.#colorsAll; };
 
     recordTask( title, isComplete, priority ) {
         this.#title = title;

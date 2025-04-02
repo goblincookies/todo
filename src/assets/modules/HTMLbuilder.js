@@ -2,6 +2,8 @@ import { Project, Task } from "./DATAmanager";
 import fileClose from "../images/close.svg";
 import fileFlag from "../images/flag.svg";
 import fileDrag from "../images/drag.svg";
+import fileCheck from "../images/check.svg";
+
 
 
 class PageBuilder {
@@ -31,6 +33,49 @@ class PageBuilder {
         return true;
     }
 
+    getHTML_Inkwell() {
+        // <dialog class="fixed fullscreen fadeout">
+        //     <div class="upper-left-corner min-size pad-1 bkggray5">
+        //         <ul class="colors grid-inkwell" id="inkwell"> --- </ul>
+        //     </div>
+        // </dialog>
+        const inkwellDialog = this.createElement("dialog", "fullscreen fadeout");
+        const inkwellDiv = this.createElement("div", "mouse-relative fixed min-size pad-1 bkggray5");
+        const inkwellUl = this.createElement("ul", "colors grid-inkwell")
+
+        inkwellUl.id = "inkwell";
+
+        inkwellDiv.appendChild( inkwellUl );
+        inkwellDialog.appendChild( inkwellDiv );
+
+        return inkwellDialog;
+    };
+
+    getHTML_check( ) {
+        // <img class="svg-glow" src="./assets/images/check.svg" alt="">
+        const checkImg = this.createElement( "img", "svg-glow", fileCheck );
+        return checkImg;
+    }
+
+    getHTML_InkwellSquare( hex ) {
+        // <li>
+        //     <button class="div-button">
+        //         <div class="inkwell-square">
+        //             ***** <img class="svg-glow" src="./assets/images/check.svg" alt="">
+        //         </div>
+        //     </button>
+        // </li>
+        const mainLi = this.createElement( "li", "" );
+        const button = this.createElement( "button", "div-button" );
+        const inksquareDiv = this.createElement( "div", "inkwell-square" );
+        inksquareDiv.style.backgroundColor = hex;
+        // const button = this.createElement( "button", "inkwell-square" );
+
+        button.appendChild( inksquareDiv );
+        mainLi.appendChild( button );
+        return mainLi;
+    };
+
     getHTML_ProjectPage() {
 
         // <div class="chart" id="chart">
@@ -56,6 +101,8 @@ class PageBuilder {
         //         <div class="blank right"></div>
         //     </div>
         // </div>
+
+        
         
         const mainDiv = this.createElement("div", "chart");
         const firstDiv = this.createElement("div", "flex-h-left-bottom");
@@ -168,6 +215,15 @@ class PageBuilder {
         HTML.classList.add("hidden");
     };
 
+    writeCSS_MouseRelative( HTML, posX, posY ){
+        const rect = HTML.getBoundingClientRect();
+        HTML.style.transform =  `translate(${posX - rect.width/2}px, ${posY - rect.height/2 }px)`
+    };
+
+    writeCSS_NewBackgroundColor( HTML, hex ) {
+        HTML.style.backgroundColor = hex;
+    };
+
     writeCSS_Even_Hour( HTML, i, w, p ) {
         // const rect = HTML.getBoundingClientRect();
         // console.log(rect.width)
@@ -216,7 +272,7 @@ class PageBuilder {
         //         <input class="title text-sm bold trunc" type="text" value="buy a new amp!!!">
         //         **<h3 class="text-sm bold trunc">buy a new amp!!!</h3>**
         //         <p class="time text-sm">41h 15m</p>
-        //         <button class="div-button">
+        //         <button class="switch-color div-button">
         //             <div class="color hidden"></div>
         //         </button>
         //     </div>
@@ -257,7 +313,8 @@ class PageBuilder {
 
         const durationP = this.createElement("p", "time text-sm");
         durationP.textContent = task.duration;
-        const colorButton = this.createElement("button", "div-button");
+        const colorButton = this.createElement("button", "div-button switch-color");
+        colorButton.id = `color-${ task.id }`;
         const colorDiv = this.createElement("div", "color");
         
         colorDiv.classList.add("hidden");   

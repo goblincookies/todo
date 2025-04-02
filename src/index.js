@@ -13,6 +13,9 @@ let leftSec;
 let taskList;
 let gridUL;
 let hourUL;
+let dialog;
+let inkwell;
+let task;
 
 const obj = {
     TASK:0,
@@ -81,6 +84,18 @@ function createListeners() {
 function updateListeners() {
     createListeners();
 };
+
+function fillInkwell() {
+    const tempTask = new Task();
+    const allColors = tempTask.allColors;
+    inkwell = document.getElementById( "inkwell" );
+    let square;
+    allColors.forEach( hex => {
+        square = pageBuilder.getHTML_InkwellSquare( hex );
+        square.querySelector(".inkwell-square").id = hex;
+        inkwell.appendChild( square );
+    });
+}
 
 function timeToRawHours( t ) {
     if( !( t instanceof Date ) ){
@@ -164,6 +179,8 @@ function setup () {
     // dragManager.UL()
     const content = document.getElementById("content");
     content.appendChild( pageBuilder.getHTML_ProjectPage() );
+    content.appendChild( pageBuilder.getHTML_Inkwell() );
+
     leftSec = document.getElementById( "left" );
     taskList = document.getElementById( "task-list" );
     gridUL = document.getElementById("grid");
@@ -175,6 +192,10 @@ function setup () {
     endTime = getNewEndTime( startTime );
     console.log(`endTime: ${endTime} ${ endTime instanceof Date}`)
     setupHours();
+
+    dialog = document.querySelector("dialog");
+    // dialog.showModal();
+    fillInkwell();
 
     const newTask = document.getElementById( "new-task" );
     newTask.addEventListener("click", createNewTask );
@@ -394,7 +415,7 @@ const drag = (e) => {
         const lastHr = parseInt( allHours[ allHours.length - 1 ].textContent );
 
 
-        console.log(`checking against ${timeToRawMinutes(startTime)} // ${timeToRawMinutes(endTime)}`)
+        // console.log(`checking against ${timeToRawMinutes(startTime)} // ${timeToRawMinutes(endTime)}`)
         allHours.forEach( hr => {
             //hr.id == time
             // console.log(`HOUR id: ${} startTime: ${startTime}`)
@@ -592,6 +613,65 @@ function deleteTask( e ) {
 
 };
 
+function changedColor( e ) {
+    // console.log( e.key )
+    if( e.key || e.target === dialog ) {
+        console.log("cancel!!")
+    };
+
+    if( e.currentTarget.nodeName == "BUTTON" ) {
+        console.log( "new color!" );
+        task.color = e.target.closest(".inkwell-square").id;
+        const taskColorBox = document.getElementById( `color-${ task.id }` ).children[0];
+        const taskBar = document.getElementById( `bar-${ task.id }` );
+        
+        pageBuilder.writeCSS_NewBackgroundColor( taskColorBox, task.color );
+        pageBuilder.writeCSS_NewBackgroundColor( taskBar, task.color );
+    };
+
+    // ADD LISTENERS TO ALL THE BUTTONS
+    Array.from(inkwell.children).forEach( li => {
+        li.querySelector("button").removeEventListener("click", changedColor );
+    });
+
+    dialog.removeEventListener("click", changedColor );
+    dialog.removeEventListener( 'keydown', changedColor );
+
+    dialog.close();
+};
+
+function switchColor( e ) {
+    dialog.showModal();
+
+    pointerStartX = e.clientX || e.touches[0].clientX;
+    pointerStartY = e.clientY || e.touches[0].clientY;
+
+    const inkBox = dialog.querySelector(".mouse-relative");
+
+    pageBuilder.writeCSS_MouseRelative( inkBox, pointerStartX, pointerStartY );
+    
+    const id = e.currentTarget.id.split("-")[1];
+    task = project.getTask( id ); 
+    
+    // ADD LISTENERS TO ALL THE BUTTONS
+    Array.from(inkwell.children).forEach( li => {
+        if( li.querySelector("img") ) { li.querySelector("img").remove(); }
+        li.querySelector("button").addEventListener("click", changedColor );
+    });
+
+    // ADD A CHECK TO DIALOG
+    // console.log( task.color );
+    const inkwellSquare = document.getElementById( task.color );
+    inkwellSquare.appendChild( pageBuilder.getHTML_check() );
+    
+    // ADD LISTENER TO CLICK AWAY
+    dialog.addEventListener("click", changedColor );
+
+    // ADD LISTENER FOR ENTER/ESCAPE
+    dialog.addEventListener( 'keydown', changedColor );
+
+};
+
 function writeTaskTitle( e ) {
     if (e.key === 'Enter') {
         console.log("enter");
@@ -661,12 +741,13 @@ function createNewTask( e ) {
         timeToRawMinutes( startTime ),
         timeToRawMinutes( endTime )
     );
- 
+    
     const titleInput = taskHTML.querySelector("input.title");
     titleInput.focus();
     titleInput.select();
-
+    
     taskHTML.querySelector( "button.delete" ).addEventListener( 'click', deleteTask )
+    taskHTML.querySelector("button.switch-color").addEventListener( "click", switchColor );
     // task.addEventListener('focus', editTaskTitle);
     titleInput.addEventListener( 'blur', writeTaskTitle );
     titleInput.addEventListener( 'keydown', writeTaskTitle );
