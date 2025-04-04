@@ -75,10 +75,10 @@ class Task {
     ];
 
     #taskID = -1;
+    #title = "New Row Title";
     #priority = 0;
     #isSection = false;
     #isComplete = false;
-    #title = "New Row Title";
     #startMin = 0;
     #endMin = 0;
     // #startDate = 3; //1-96 >> 0-24hrs * 4
@@ -183,10 +183,16 @@ class Converter {
 };
 
 class Project {
-    // keeps track of a list of tasks
-    // #id = 1;
-    #shift = 3
+
+    #taskID = -1;
+    #title = "New Project";
     #database = [];
+
+    set id (val) { this.#taskID = val; };
+    get id () { return this.#taskID; };
+
+    set title (val) { if ( typeof val == 'string' ){  this.#title = val; }; };
+    get title () { return this.#title; };
 
     isNotTask( t ) {
         if ( t instanceof Task ) { return false; }
@@ -199,12 +205,12 @@ class Project {
 
         if (this.#database[id]) {
             delete this.#database[id];
-            console.log( `successfully delete task number ${ id }`);
+            console.log( `successfully deleted task number ${ id }`);
             // RE ORDER THE TASKS
             return;
         };
         // DOESN'T EXIST
-        console.log(`database can't find that book(${id}), maybe it's already deleted?`);
+        console.log(`database can't find that task(${id}), maybe it's already deleted?`);
     }
 
     writeTask( task ) {
@@ -229,6 +235,44 @@ class Project {
 class Database {
 
     // keeps track of a list of projects
+    #projectID = -1;
+    #database = [];
+
+    isNotProject( p ) {
+        if ( p instanceof Project ) { return false; }
+
+        console.log(`${typeof p } is not a Project Object`);
+        return true;
+    };
+
+    deleteProject( id ) {
+
+        if (this.#database[id]) {
+            delete this.#database[ id ];
+            console.log( `successfully deleted project number ${ id }`);
+            // RE ORDER THE TASKS
+            return;
+        };
+        // DOESN'T EXIST
+        console.log(`database can't find that Project(${id}), maybe it's already deleted?`);
+    }
+
+    writeProject( project ) {
+        if ( this.isNotProject( project ) ) { return 0; }
+
+        if ( project.id < 0 ) { project.id = this.#database.length; };
+        console.log(`writing project to Database, id ${ project.id }, ${ project.title } `);
+        this.#database[ project.id ] = project;
+    };
+
+    getProject( id ) {
+        if (this.#database[ id ]) { return this.#database[ id ] };
+        // DOESN'T EXIST
+        console.log(`database can't find Project( ${id} / ( ${id} )), sending a blank project`);
+        return new Project();
+    };
+
+    getAll() { return this.#database; }
 
 }
 

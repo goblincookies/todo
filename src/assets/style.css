@@ -97,6 +97,13 @@ li {
     list-style-type: none;
     height: var(--cell);
 }
+#projects>li{
+    height: auto;
+}
+.spacer-5 {
+    height: 5rem;
+    width: 5rem;
+}
 ul.hour,
 li.hour {
     height: var(--bar);
@@ -173,6 +180,15 @@ input.title:focus{
 }
 button { cursor: pointer; }
 .grab { cursor: grab; }
+.pad-wide-right {
+    /* padding-left: 3.5rem; */
+    padding-right: 4.5rem;
+}
+.basic-button {
+    outline: none;
+    border: none;
+    background-color: transparent;
+}
 .task-button {
     border-radius: 2rem;
     outline: none;
@@ -182,7 +198,6 @@ button { cursor: pointer; }
     padding-right: 1rem;
     margin-top: 1rem;
     margin-bottom: 1rem;
-
     background-color: var(--accent);    
 }
 .text-button {
@@ -222,6 +237,14 @@ button { cursor: pointer; }
 }
 .ribbon {
     padding-right: 0.5rem;
+}
+.reveal:hover {
+    .hidden {
+        visibility: visible;
+    }
+    .ribbon{
+        background-color: var(--gray4);
+    }
 }
 .row:hover {
     .ribbon{
@@ -407,4 +430,18 @@ dialog {
 .thing {
     color: #3cbcfc;
     color: #a4e4fc;
+}
+.fade-in {
+    color: var(--gray0);
+
+    /* outline: 1px solid #000; */
+    transition: color 0.2s;
+}
+.fade-in:hover {
+    /* filter: drop-shadow( 1px  0px 2px var(--accent)) 
+            drop-shadow(-1px  0px 2px var(--accent))
+            drop-shadow( 0px  1px 2px var(--accent)) 
+            drop-shadow( 0px -1px 2px var(--accent)); */
+    background-color: var(--accent);
+
 }

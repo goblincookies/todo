@@ -3,6 +3,8 @@ import fileClose from "../images/close.svg";
 import fileFlag from "../images/flag.svg";
 import fileDrag from "../images/drag.svg";
 import fileCheck from "../images/check.svg";
+import fileArrow from "../images/right.svg";
+
 
 
 
@@ -26,12 +28,19 @@ class PageBuilder {
         return element;
     };
 
+    isNotProject( p ) {
+        if ( p instanceof Project ) { return false; }
+
+        console.log(`${typeof p } is not a Project Object`);
+        return true;
+    };
+
     isNotTask( t ) {
         if ( t instanceof Task ) { return false; }
 
         console.log(`${typeof t } is not a Task Object`);
         return true;
-    }
+    };
 
     getHTML_Inkwell() {
         // <dialog class="fixed fullscreen fadeout">
@@ -75,6 +84,36 @@ class PageBuilder {
         mainLi.appendChild( button );
         return mainLi;
     };
+
+    getHTML_ProjectSelect() {
+        // <ul id="projects">
+        //     <li class="flex-h-left">
+        //         <div class="spacer-5"></div>
+        //         <button class="task-button">
+        //             <h3 class="text-sm upper gray0 trunc">+New Project</h3>
+        //         </button>
+        //     </li>
+        // </ul>
+
+        const mainUL = this.createElement("ul", "");
+        const mainLi = this.createElement("li", "flex-h-left");
+        const spacerDiv = this.createElement("div", "spacer-5");
+        const projButton = this.createElement("button", "task-button");
+        const projH3 = this.createElement("h3", "text-sm upper gray0 trunc");
+
+        mainUL.id = "projects";
+        projButton.id = "new-project";
+        projH3.textContent = "+New Project";
+
+        // build( { mainUL, mainLi, spacerDiv, projButton, projH3 })
+
+        projButton.appendChild( projH3 );
+        mainLi.appendChild( spacerDiv );
+        mainLi.appendChild( projButton );
+        mainUL.appendChild( mainLi );
+
+        return mainUL;
+    }
 
     getHTML_ProjectPage() {
 
@@ -248,6 +287,31 @@ class PageBuilder {
         HTML.style.transform = `translateX( ${ tS-gS }px)`;
         HTML.classList.remove("hidden");
         return;
+    };
+
+    getHTML_Project( project ) {
+        if ( this.isNotProject( project ) ) { return 0; }
+        console.log( project );
+
+        // <li class="">
+        //     <button id="project-1" class="basic-button flex-h-left reveal fade-in pad-wide-right">
+        //         <img src="./assets/images/right.svg" alt="" class="icon-lg hidden">
+        //         <h2 class="text-lg ital heavy upper">Project title</h2>
+        //     </button>
+        // </li>
+        const mainLi = this.createElement( "li", "" );
+        const projButton = this.createElement( "button", "basic-button flex-h-left reveal fade-in pad-wide-right" );
+        const arrowImg = this.createElement( "img","icon-lg hidden", fileArrow );
+        const textH2 = this.createElement( "h2", "text-lg ital heavy upper" );
+
+        textH2.textContent = project.title;
+        projButton.id = project.id;
+
+        projButton.appendChild( arrowImg );
+        projButton.appendChild( textH2 );
+        mainLi.appendChild( projButton );
+
+        return mainLi;
     };
 
     getHTML_Task( task ) {

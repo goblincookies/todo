@@ -1,14 +1,20 @@
 import "./assets/style.css";
-import { Task, Project, Converter } from "./assets/modules/DATAmanager";
+import { Task, Project, Database } from "./assets/modules/DATAmanager";
 import { PageBuilder } from "./assets/modules/HTMLbuilder";
 
 const pageBuilder = new PageBuilder();
 const project = new Project();
-const converter = new Converter();
-// const reorderManager = new DragToReorder();
-// const resizeManager = new DragToResize();
+const database = new Database();
+// const converter = new Converter();
+const content = document.getElementById("content");
 
+const page = {
+    UNKNOWN: 0,
+    PROJECT: 1,
+    TASK: 2,
+}
 
+let currentPage = page.PROJECT;
 let leftSec;
 let taskList;
 let gridUL;
@@ -16,6 +22,7 @@ let hourUL;
 let dialog;
 let inkwell;
 let task;
+let projects;
 
 const obj = {
     TASK:0,
@@ -44,6 +51,35 @@ let pointerStartY;
 let itemsGap = 0;
 let items = [];
 
+
+function switchPage( e ) {
+    console.log( "switching page" );
+    let newPage = page.UNKNOWN;
+    let HTML;
+
+    switch( e.currentTarget.id ) {
+        case "PROJECT":
+            newPage = page.PROJECT;
+            HTML = pageBuilder.getHTML_ProjectSelect();
+            break;
+
+        case "TASK":
+            newPage = page.TASK;
+            HTML = pageBuilder.getHTML_ProjectPage();
+            break;
+
+        default:
+            console.log("error trying to find this page..");
+            HTML = "error";
+            break;
+    };
+
+    if (currentPage != newPage) {
+        content.textContent = "";
+        content.appendChild( HTML )
+    };
+    
+};
 
 // FROM INTERACTION
 function getAllItems( el ) {
@@ -171,40 +207,56 @@ function setupHours(){
     //     prevWidth += hourHTML.getBoundingClientRect().width;
     // };
 
-}
+};
+
+function drawPage( pg ) {
+    content.textContent = "";
+
+    switch( pg) {
+        case page.PROJECT:
+            console.log("project page");
+            content.append( pageBuilder.getHTML_ProjectSelect() );
+            
+            projects = document.getElementById( "projects" );
+            const newProject = document.getElementById( "new-project" );
+            newProject.addEventListener( "click", createNewProject );
+            break;
+        case page.TASK:
+            content.appendChild( pageBuilder.getHTML_ProjectPage() );
+            content.appendChild( pageBuilder.getHTML_Inkwell() );
+            leftSec = document.getElementById( "left" );
+            taskList = document.getElementById( "task-list" );
+            gridUL = document.getElementById("grid");
+            hourUL = document.getElementById("hour");
+
+            startTime.setTime( startTime.getTime() + (-3*60*60*1000) )
+            endTime = getNewEndTime( startTime );
+            console.log(`endTime: ${endTime} ${ endTime instanceof Date}`)
+            setupHours();
+
+            dialog = document.querySelector("dialog");
+            // dialog.showModal();
+            fillInkwell();
+
+            const newTask = document.getElementById( "new-task" );
+            newTask.addEventListener("click", createNewTask );
+
+            createListeners();
+
+            document.addEventListener("mouseup", dragEnd );
+            document.addEventListener("touchend", dragEnd);
+            window.addEventListener('resize', resize);
+
+            break;
+        default:
+            break;
+    };
+
+};
 
 function setup () {
-    // const taskBuilder = new TaskBuilder();
-    console.log("setup")
-    // dragManager.UL()
-    const content = document.getElementById("content");
-    content.appendChild( pageBuilder.getHTML_ProjectPage() );
-    content.appendChild( pageBuilder.getHTML_Inkwell() );
-
-    leftSec = document.getElementById( "left" );
-    taskList = document.getElementById( "task-list" );
-    gridUL = document.getElementById("grid");
-    hourUL = document.getElementById("hour");
-
-    // startTime = new Date();
-    // endTime = new Date();
-    startTime.setTime( startTime.getTime() + (-3*60*60*1000) )
-    endTime = getNewEndTime( startTime );
-    console.log(`endTime: ${endTime} ${ endTime instanceof Date}`)
-    setupHours();
-
-    dialog = document.querySelector("dialog");
-    // dialog.showModal();
-    fillInkwell();
-
-    const newTask = document.getElementById( "new-task" );
-    newTask.addEventListener("click", createNewTask );
-
-    createListeners();
-
-    document.addEventListener("mouseup", dragEnd );
-    document.addEventListener("touchend", dragEnd);
-    window.addEventListener('resize', resize);
+    console.log("setup");
+    drawPage( currentPage );
 };
 
 function resize( e ) {
@@ -704,8 +756,18 @@ function writeTaskTitle( e ) {
         editSave = true;
         return
     };
+};
 
-}
+function createNewProject( e ) {
+    console.log("new Project!");
+
+    let project = new Project();
+    database.writeProject( project );
+
+    const projectHTML = pageBuilder.getHTML_Project( project );
+    projects.insertBefore( projectHTML, document.getElementById("projects").lastChild );
+
+};
 
 function createNewTask( e ) {
     console.log("new task!")
@@ -731,9 +793,6 @@ function createNewTask( e ) {
     taskList.appendChild( taskHTML );
     const barHTML = pageBuilder.getHTML_Bar( task );
     gridUL.appendChild( barHTML );
-
-    console.log("time here:")
-    
 
     pageBuilder.writeCSS_Resize_Task(
         barHTML.querySelector(".bar"),
