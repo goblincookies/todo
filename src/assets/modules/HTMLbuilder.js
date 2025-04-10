@@ -4,7 +4,9 @@ import fileFlag from "../images/flag.svg";
 import fileDrag from "../images/drag.svg";
 import fileCheck from "../images/check.svg";
 import fileArrow from "../images/right.svg";
-
+import dragVert from "../images/dragVert.svg";
+import editSvg from "../images/edit.svg";
+import deleteSvg from "../images/delete.svg";
 
 
 
@@ -85,6 +87,8 @@ class PageBuilder {
         return mainLi;
     };
 
+    // RENAME THIS
+    // PROJECTS
     getHTML_ProjectSelect() {
         // <ul id="projects">
         //     <li class="flex-h-left">
@@ -115,6 +119,8 @@ class PageBuilder {
         return mainUL;
     }
 
+    // RENAME THIS, IT"S CONFUSING
+    // VIEW??
     getHTML_ProjectPage() {
 
         // <div class="chart" id="chart">
@@ -184,8 +190,6 @@ class PageBuilder {
 
         mainDiv.appendChild( firstDiv );
         mainDiv.appendChild( secDiv );
-
-
 
         return mainDiv;
     };
@@ -293,23 +297,89 @@ class PageBuilder {
         if ( this.isNotProject( project ) ) { return 0; }
         console.log( project );
 
-        // <li class="">
-        //     <button id="project-1" class="basic-button flex-h-left reveal fade-in pad-wide-right">
-        //         <img src="./assets/images/right.svg" alt="" class="icon-lg hidden">
-        //         <h2 class="text-lg ital heavy upper">Project title</h2>
+        // <li class="flex-h-left gap-1 reveal fade-in pad-sides min-size debugA" id="project-1">
+        //     <img src="./assets/images/dragVert.svg" alt="" class="icon-md hidden grab">
+
+        //     <button class="basic-button flex-h-left pad-wide-right" id = "button-1">
+        //         <input disabled type="text" class="project text-lg ital heavy upper trunc" value="Project Title Is Long">
         //     </button>
+
+        //     <div class="overlays remove">
+        //         <div class="flex-right">
+        //             <button class="circle square-md stroke clear">
+        //                 <img src="./assets/images/edit.svg" alt="" class="icon-md">
+        //             </button>
+        //             <button class="circle square-md stroke clear">
+        //                 <img src="./assets/images/delete.svg" alt="" class="icon-md">
+        //             </button>
+        //         </div>
+        //     </div>
         // </li>
-        const mainLi = this.createElement( "li", "" );
-        const projButton = this.createElement( "button", "basic-button flex-h-left reveal fade-in pad-wide-right" );
-        const arrowImg = this.createElement( "img","icon-lg hidden", fileArrow );
-        const textH2 = this.createElement( "h2", "text-lg ital heavy upper" );
 
-        textH2.textContent = project.title;
-        projButton.id = project.id;
+        console.log("new!")
 
-        projButton.appendChild( arrowImg );
-        projButton.appendChild( textH2 );
-        mainLi.appendChild( projButton );
+        // <li class="flex-h-left gap-1 reveal fade-in pad-sides min-size debugB" id="project-1">
+        //     <img src="./assets/images/dragVert.svg" alt="" class="icon-md hidden grab">
+
+        //     <button class="project basic-button flex-h-left pad-wide-right text-lg ital heavy upper trunc">New Solution</button>
+        //     <input disabled type="text" class="project text-lg ital heavy upper trunc remove" value="New Solution">
+
+        //     <div class="overlays hidden-none">
+        //         <div class="flex-right">
+        //             <button class="edit circle square-md stroke clear">
+        //                 <img src="./assets/images/edit.svg" alt="" class="icon-md">
+        //             </button>
+        //             <button class="delete circle square-md stroke clear">
+        //                 <img src="./assets/images/delete.svg" alt="" class="icon-md">
+        //             </button>
+        //         </div>
+        //     </div>
+        // </li>
+
+        const mainLi = this.createElement( "li", "flex-h-left gap-1 reveal fade-in pad-sides min-size" );
+        const grabImg = this.createElement( "img", "icon-md hidden grab", dragVert );
+        
+        const titleButton = this.createElement( "button", "project basic-button flex-h-left pad-wide-right text-lg ital heavy upper trunc" );
+        const titleInput = this.createElement( "input", "project text-lg ital heavy upper trunc remove" );
+
+        const overlayDiv = this.createElement( "div", "overlays hidden-none" );
+        const flexDiv = this.createElement( "div", "flex-right" );
+        const editButton = this.createElement( "button", "edit circle square-md stroke clear" );
+        const editImg = this.createElement( "img", "icon-md", editSvg );
+
+        const deleteButton = this.createElement( "button", "delete circle square-md stroke clear" );
+        const deleteImg = this.createElement( "img", "icon-md", deleteSvg );
+
+        // 
+        // 
+        // 
+        console.log( `project Title: ${project.title}` );
+
+        titleInput.value = project.title;
+        titleInput.type = "text";
+        titleButton.textContent = project.title;
+
+        // titleInput.disabled = true;
+
+        mainLi.id = `project-${project.id}`;
+        titleButton.id = `button-${project.id}`;
+        titleInput.id = `input-${project.id}`;
+        editButton.id = `edit-${project.id}`;
+        deleteButton.id = `delete-${project.id}`;
+
+        editButton.appendChild( editImg );
+        deleteButton.appendChild( deleteImg );
+        
+        // titleButton.appendChild( titleInput );
+
+        flexDiv.appendChild( editButton );
+        flexDiv.appendChild( deleteButton );
+        overlayDiv.appendChild( flexDiv );
+
+        mainLi.appendChild( grabImg );
+        mainLi.appendChild( titleButton );
+        mainLi.appendChild( titleInput );
+        mainLi.appendChild( overlayDiv );
 
         return mainLi;
     };
@@ -394,6 +464,18 @@ class PageBuilder {
         mainDiv.appendChild( taskDiv );
 
         return mainDiv;
+    };
+
+    getWidth_H3 ( text ) {
+        const mainDiv = this.createElement( "h3", "project text-lg ital heavy upper" );
+        mainDiv.style.width = "fit-content";
+        mainDiv.textContent = text;
+        // mainDiv.style.width = "fit-content"
+        document.getElementById( "content" ).appendChild( mainDiv );
+        const w = mainDiv.getBoundingClientRect().width;
+        console.log( `---calculated w: ${ w }`);
+        mainDiv.remove();
+        return w;
     };
 
 };

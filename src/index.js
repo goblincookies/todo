@@ -23,6 +23,7 @@ let dialog;
 let inkwell;
 let task;
 let projects;
+let header;
 
 const obj = {
     TASK:0,
@@ -52,18 +53,18 @@ let itemsGap = 0;
 let items = [];
 
 
-function switchPage( e ) {
+function switchPage( pg ) {
     console.log( "switching page" );
     let newPage = page.UNKNOWN;
     let HTML;
 
-    switch( e.currentTarget.id ) {
-        case "PROJECT":
+    switch( pg ) {
+        case page.PROJECT:
             newPage = page.PROJECT;
             HTML = pageBuilder.getHTML_ProjectSelect();
             break;
 
-        case "TASK":
+        case page.TASK:
             newPage = page.TASK;
             HTML = pageBuilder.getHTML_ProjectPage();
             break;
@@ -77,6 +78,7 @@ function switchPage( e ) {
     if (currentPage != newPage) {
         content.textContent = "";
         content.appendChild( HTML )
+        currentPage = newPage;
     };
     
 };
@@ -209,18 +211,74 @@ function setupHours(){
 
 };
 
-function drawPage( pg ) {
+function fillExistingTasks() {
+
+};
+
+function fillExistingProjects() {
+    database.getAll().forEach( proj => {
+
+        // let project = database();
+        // database.writeProject( project );
+
+        const projectHTML = pageBuilder.getHTML_Project( proj );
+        const titleButtonHTML = projectHTML.querySelector( "button.project" );
+        // const titleInputHTML = projectHTML.querySelector( "input.project" );
+        // const titleButton = projectHTML.querySelector( ".basic-button" );
+        const id = projectHTML.id.split("-")[1] 
+
+        let w = pageBuilder.getWidth_H3( proj.title );
+        w = Math.min( w + 400, document.body.clientWidth - 15 );
+        projectHTML.style.width = `${ w }px`;
+        
+        projects.insertBefore( projectHTML, document.getElementById("projects").lastChild );
+
+        // inputHTML.disabled = true;
+        titleButtonHTML.addEventListener( 'click', ( e ) => {
+            e.preventDefault();
+            console.log("clicky clicky")
+            drawPage( page.TASK, id );
+        });
+        projectHTML.querySelector("button.delete").addEventListener( 'click', deleteProject );
+        projectHTML.querySelector("button.edit").addEventListener( 'click', editProject );
+    });
+};
+
+function deleteProject( e ) {
+
+};
+
+function editProject( e ) {
+    console.log(`editing project title`);
+    const id = e.currentTarget.id.split("-")[1];
+    const titleButtonHTML = document.getElementById( `button-${id}` );
+    const titleInputHTML = document.getElementById( `input-${id}` );
+    titleButtonHTML.classList.add( "remove" );
+    titleInputHTML.classList.remove( "remove" );
+
+    titleInputHTML.focus();
+    titleInputHTML.select();
+
+    titleInputHTML.addEventListener( 'blur', writeProject );
+    titleInputHTML.addEventListener( 'keydown', writeProject );
+};
+
+function drawPage( pg, id ) {
     content.textContent = "";
 
     switch( pg) {
         case page.PROJECT:
+
             console.log("project page");
             content.append( pageBuilder.getHTML_ProjectSelect() );
-            
+            header = document.querySelector("header")
+            header.classList.add("remove");
             projects = document.getElementById( "projects" );
             const newProject = document.getElementById( "new-project" );
             newProject.addEventListener( "click", createNewProject );
+            fillExistingProjects();
             break;
+
         case page.TASK:
             content.appendChild( pageBuilder.getHTML_ProjectPage() );
             content.appendChild( pageBuilder.getHTML_Inkwell() );
@@ -228,6 +286,9 @@ function drawPage( pg ) {
             taskList = document.getElementById( "task-list" );
             gridUL = document.getElementById("grid");
             hourUL = document.getElementById("hour");
+            
+            header.classList.remove("remove");
+            document.getElementById( "active-title" ).value = database.getProject( id ).title;
 
             startTime.setTime( startTime.getTime() + (-3*60*60*1000) )
             endTime = getNewEndTime( startTime );
@@ -238,6 +299,11 @@ function drawPage( pg ) {
             // dialog.showModal();
             fillInkwell();
 
+            const seeProjects = document.getElementById( "see-projects" );
+            seeProjects.addEventListener( "click", ()=>{
+                drawPage( page.PROJECT, -1 );
+            });
+
             const newTask = document.getElementById( "new-task" );
             newTask.addEventListener("click", createNewTask );
 
@@ -246,6 +312,8 @@ function drawPage( pg ) {
             document.addEventListener("mouseup", dragEnd );
             document.addEventListener("touchend", dragEnd);
             window.addEventListener('resize', resize);
+
+            fillExistingTasks();
 
             break;
         default:
@@ -256,7 +324,7 @@ function drawPage( pg ) {
 
 function setup () {
     console.log("setup");
-    drawPage( currentPage );
+    drawPage( currentPage, -1 );
 };
 
 function resize( e ) {
@@ -724,6 +792,46 @@ function switchColor( e ) {
 
 };
 
+function writeProject( e ) {
+    // console.log("writing project")
+    if (e.key === 'Enter') {
+        console.log("enter");
+
+        // editSave = true;
+        e.target.blur();
+        return;
+    };
+
+    if (e.key === 'Escape') {
+        console.log("escape");
+
+        const id = e.currentTarget.id.split("-")[1];
+        const proj = database.getProject( id );
+        e.currentTarget.value = proj.title;
+
+        editSave = false;
+        e.target.blur();
+        return;
+    };
+
+    if( e.type == "blur" ) {
+        let id = -1;
+
+        if( editSave ) {
+            console.log('saving to database');
+            id = e.currentTarget.id.split("-")[1];
+            const proj = database.getProject( id );
+            proj.title = e.currentTarget.value;
+            database.writeProject( proj );
+        };
+
+        editSave = true;
+        drawPage( page.TASK, id );
+        return
+    };
+
+}
+
 function writeTaskTitle( e ) {
     if (e.key === 'Enter') {
         console.log("enter");
@@ -761,11 +869,43 @@ function writeTaskTitle( e ) {
 function createNewProject( e ) {
     console.log("new Project!");
 
-    let project = new Project();
-    database.writeProject( project );
+    document.getElementById("new-project").classList.add("remove");
 
-    const projectHTML = pageBuilder.getHTML_Project( project );
+    let proj = new Project();
+    database.writeProject( proj );
+
+    const projectHTML = pageBuilder.getHTML_Project( proj );
+    projectHTML.querySelector(".overlays").remove();
+    projectHTML.querySelector(".grab").classList.remove( "hidden" );
+    projectHTML.querySelector(".grab").classList.add( "hidden-x" );
+
+    const titleButtonHTML = projectHTML.querySelector("button.project");
+    const titleInputHTML = projectHTML.querySelector("input.project");
+
+    
+    titleButtonHTML.classList.add( "remove" );
+    titleInputHTML.classList.remove( "remove" );
+    
+    console.log( titleButtonHTML )
+    console.log( titleInputHTML )
+    // const inputHTML = projectHTML.querySelector("input");
+
+    let w = pageBuilder.getWidth_H3( proj.title );
+    w = Math.min( w + 400 , document.body.clientWidth - 15 );
+    projectHTML.style.width = `${ w }px`;
+
+    // let w = convertRemToPixels( project.title.length ) * 7;
+    // w = Math.min(w, document.body.clientWidth-5 );
+    // console.log( `calculated width: ${w}px`);
+    // projectHTML.style.width = `${w}px`;
+
+    
     projects.insertBefore( projectHTML, document.getElementById("projects").lastChild );
+    titleInputHTML.focus();
+    titleInputHTML.select();
+
+    titleInputHTML.addEventListener( 'blur', writeProject );
+    titleInputHTML.addEventListener( 'keydown', writeProject );
 
 };
 

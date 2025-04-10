@@ -8,52 +8,58 @@
 </head>
 <body>
     <header>
-        <!-- <button class="text-button" id="new-project">
-            <h3 class="text-md heavy upper gray4 button">+ project</h3>
-        </button> -->
-        <div class="flex-h-left">
-            <button id="project-0" class="basic-button flex-h-left reveal fade-in pad-wide-right">
-                <img src="./assets/images/circle-down.svg" alt="" class="icon-lg">
-                <h2 class="text-lg ital heavy upper">Project title</h2>
-            </button>
-
-            <!-- <button class="img-button" id="see-projects">
-                <img src="./assets/images/circle-down.svg" alt="" class="icon-lg">
-            </button>
-            <h1 class="text-lg ital heavy gray0 upper" id="active-title">Project title</h1> -->
-        </div>
+        
     </header>
 
     <div class="" id="content">
-        <ul class="projects">
+        <ul id="projects">
 
-            <li class="">
-                <button id="project-1" class="basic-button flex-h-left reveal fade-in pad-wide-right">
+            <li class="flex-h-left gap-1 reveal fade-in pad-sides min-size debugB" id="project-1">
+                <img src="./assets/images/dragVert.svg" alt="" class="icon-md hidden grab">
+
+                <button class="basic-button flex-h-left pad-wide-right">
+                    <input disabled type="text" class="project text-lg ital heavy upper trunc" value="Original Solution">
+                </button>
+
+                <div class="overlays remove">
+                    <div class="flex-right">
+                        <button class="circle square-md stroke clear">
+                            <img src="./assets/images/edit.svg" alt="" class="icon-md">
+                        </button>
+                        <button class="circle square-md stroke clear">
+                            <img src="./assets/images/delete.svg" alt="" class="icon-md">
+                        </button>
+                    </div>
+                </div>
+            </li>
+
+
+        
+            <li class="flex-h-left gap-1 reveal fade-in pad-sides min-size debugB" id="project-1">
+                <img src="./assets/images/dragVert.svg" alt="" class="icon-md hidden grab">
+
+                <button class="project basic-button flex-h-left pad-wide-right text-lg ital heavy upper trunc remove">New Solution</button>
+                <input disabled type="text" class="project text-lg ital heavy upper trunc" value="New Solution">
+
+                <div class="overlays remove">
+                    <div class="flex-right">
+                        <button class="circle square-md stroke clear">
+                            <img src="./assets/images/edit.svg" alt="" class="icon-md">
+                        </button>
+                        <button class="circle square-md stroke clear">
+                            <img src="./assets/images/delete.svg" alt="" class="icon-md">
+                        </button>
+                    </div>
+                </div>
+            </li>
+
+            <!-- <li class="">
+                <button class="basic-button flex-h-left reveal fade-in pad-wide-right">
                     <img src="./assets/images/right.svg" alt="" class="icon-lg hidden">
+                    <input type="text" class="text-lg ital heavy upper">
                     <h2 class="text-lg ital heavy upper">Project title</h2>
                 </button>
-            </li>
-
-            <li class="">
-                <button class="basic-button flex-h-left reveal fade-in pad-wide-right">
-                    <img src="./assets/images/right.svg" alt="" class="icon-lg hidden">
-                    <h2 class="text-lg ital heavy upper">Project</h2>
-                </button>
-            </li>
-
-            <li class="">
-                <button class="basic-button flex-h-left reveal fade-in pad-wide-right">
-                    <img src="./assets/images/right.svg" alt="" class="icon-lg hidden">
-                    <h2 class="text-lg ital heavy upper">Project title Thing</h2>
-                </button>
-            </li>
-
-            <li class="">
-                <button class="basic-button flex-h-left reveal fade-in pad-wide-right">
-                    <img src="./assets/images/right.svg" alt="" class="icon-lg hidden">
-                    <h2 class="text-lg ital heavy upper">Project title</h2>
-                </button>
-            </li>
+            </li> -->
 
             <li class="flex-h-left">
                 <div class="spacer-5"></div>

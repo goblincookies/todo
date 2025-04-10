@@ -45,6 +45,7 @@ header > button {
     margin-left: 2rem;
 }
 #content {
+    margin-top: 1rem;
     margin-bottom: 4rem;
 }
 .chart {
@@ -84,14 +85,33 @@ li{ position: relative; }
 .bkggray5{ background-color: var(--gray5); }
 .bkgwhite{ background-color: var(--white); }
 .upper{ text-transform: uppercase;}
+/* NONE */
+.remove { display: none !important; }
 .hidden { visibility: hidden;}
 .hidden-x { visibility: hidden;}
+.hidden-none { display: none; }
 .border-right { border-right: 1px solid black; }
 .border-left { border-left: 1px solid var(--gray3); }
 ul { position: relative; }
 .crop { overflow: hidden;}
 .pad { padding: 0.2rem; }
 .pad-1{ padding: 1rem; }
+.pad-left { padding-left: 2rem; }
+.pad-right { padding-right: 2rem; }
+.circle { border-radius: 50%; }
+.stroke { border: none; }
+.clear { background-color: transparent; }
+.gap-1 { gap: 1rem; }
+.wide { width: 100%; }
+.square-md {
+    height: 3rem;
+    width: 3rem;
+    aspect-ratio: 1;
+}
+.pad-sides { 
+    padding-left: 1rem;
+    padding-right: 4rem;
+}
 .row { height: var(--cell);}
 li {
     list-style-type: none;
@@ -148,46 +168,77 @@ img{
     align-items: center;
     gap: 0.5rem;
 }
-
-/* .section > h3 {
-    justify-self: flex-start;
-    flex-grow: 1;
-} */
+.flex-right {
+    /* margin-left: auto; */
+    display: flex;
+}
+.overlays {
+    justify-self: end;
+}
+.overlays > .flex-right {
+    gap: 4rem;
+}
 .task > h3 {
     justify-self: flex-start;
     flex-grow: 1;
+}
+.icon-md {
+    height: 2rem;
+    width: auto;
 }
 .icon-lg {
     height: 5rem;
     width: auto;
 }
+button.project,
+input.project{
+    width: 100%;
+    padding: 4px;
+    border: none;
+    background-color: transparent;
+}
+input.project:focus{
+    outline: 2px solid var(--accent);
+    background-color: var(--white);
+}
+input.project:disabled{
+    color: var(--gray0);
+    cursor: pointer;
+}
 input.title{
     padding: 4px;
     border: none;
     background-color: transparent;
-
-    /* outline: none; */
-    /* background-color: red; */
-}
-input.title:hover{
 }
 input.title:focus{
-    /* margin: 4px; */
-    /* outline-offset: 4px; */
     outline: 2px solid var(--accent);
     background-color: var(--white);
-
 }
 button { cursor: pointer; }
 .grab { cursor: grab; }
 .pad-wide-right {
     /* padding-left: 3.5rem; */
-    padding-right: 4.5rem;
+    padding-right: 1.5rem;
+}
+.fixed-button {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    /* width: 100%; */
+    outline: none;
+    border: none;
+    padding: 4px;
+    background-color: transparent;
+    /* height:300px; */
 }
 .basic-button {
+    text-align: left;
+    width: 100%;
+    height: 100%;
     outline: none;
     border: none;
     background-color: transparent;
+    display: inline-block;
 }
 .task-button {
     border-radius: 2rem;
@@ -229,6 +280,7 @@ button { cursor: pointer; }
     height: 60%;
     width: auto;
 }
+
 .left {
     background-color: var(--white);
     padding-left: 0.4rem;
@@ -245,6 +297,14 @@ button { cursor: pointer; }
     .ribbon{
         background-color: var(--gray4);
     }
+    .hidden-none {
+        display: flex;
+    }
+
+}
+.overlays > * > .stroke:hover {
+    background-color: var(--gray5);
+    border: 1px solid var(--gray0);
 }
 .row:hover {
     .ribbon{
@@ -383,14 +443,13 @@ dialog {
     outline: none;
 }
 .min-size {
-    width: fit-content;
+    width: min-content;
     height: fit-content;
 
 }
+.relative { position: relative; }
 .fixed {
     position: fixed;
-    /* right: 0; */
-    /* top: 0; */
 }
 .fadeout {
     border: none;
@@ -433,15 +492,26 @@ dialog {
 }
 .fade-in {
     color: var(--gray0);
-
-    /* outline: 1px solid #000; */
-    transition: color 0.2s;
 }
 .fade-in:hover {
-    /* filter: drop-shadow( 1px  0px 2px var(--accent)) 
-            drop-shadow(-1px  0px 2px var(--accent))
-            drop-shadow( 0px  1px 2px var(--accent)) 
-            drop-shadow( 0px -1px 2px var(--accent)); */
-    background-color: var(--accent);
+    background-color: var(--white);
+    box-shadow: 2px 2px 6px #00000031;
 
+}
+
+#project-1{
+    width: 1100px;
+}
+#project-2{
+    width: 850px;
+}
+#project-3{
+    width: 650px;
+}
+.test {
+    flex-grow: 1;
+    /* flex-shrink: 1; */
+}
+.test-text {
+    flex-shrink: 1;
 }
