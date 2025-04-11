@@ -285,7 +285,9 @@ button { cursor: pointer; }
     background-color: var(--white);
     padding-left: 0.4rem;
     padding-right: 0.5rem;
-    width: max(30%, min(40vw, 700px));
+    width: 470px;
+    flex-shrink: 0;
+    /* width: max(30%, min(40vw, 700px)); */
 }
 .ribbon {
     padding-right: 0.5rem;

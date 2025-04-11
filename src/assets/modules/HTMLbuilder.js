@@ -280,13 +280,13 @@ class PageBuilder {
 
     // allBars[-1], task.startDate, task.endDate, gridStartDate, gridEndDate
     writeCSS_Resize_Task( HTML, tS, tE, gS, gE ) {
-        // console.log(`ts:${tS}, tE:${tE}, gS:${gS}, gE:${gE},`)
+        console.log(`ts:${tS}, tE:${tE}, gS:${gS}, gE:${gE},`)
 
         // let css = "";
-        let start = Math.max( tS, gS );
-        let end = Math.min( gE, tE );
+        // let start = Math.max( tS, gS );
+        // let end = Math.min( gE, tE );
         // console.log(`HTML: ${HTML},`);
-        HTML.style.width = `${ end-start }px`;
+        HTML.style.width = `${ tE-tS }px`;
         // console.log(`transform should be: translateX( ${tS-gS}px)`);
         HTML.style.transform = `translateX( ${ tS-gS }px)`;
         HTML.classList.remove("hidden");

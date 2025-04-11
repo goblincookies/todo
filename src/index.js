@@ -57,35 +57,35 @@ let itemsGap = 0;
 let items = [];
 
 
-function switchPage( pg ) {
-    console.log( "switching page" );
-    let newPage = page.UNKNOWN;
-    let HTML;
+// function switchPage( pg ) {
+//     console.log( "switching page" );
+//     let newPage = page.UNKNOWN;
+//     let HTML;
 
-    switch( pg ) {
-        case page.PROJECT:
-            newPage = page.PROJECT;
-            HTML = pageBuilder.getHTML_ProjectSelect();
-            break;
+//     switch( pg ) {
+//         case page.PROJECT:
+//             newPage = page.PROJECT;
+//             HTML = pageBuilder.getHTML_ProjectSelect();
+//             break;
 
-        case page.TASK:
-            newPage = page.TASK;
-            HTML = pageBuilder.getHTML_ProjectPage();
-            break;
+//         case page.TASK:
+//             newPage = page.TASK;
+//             HTML = pageBuilder.getHTML_ProjectPage();
+//             break;
 
-        default:
-            console.log("error trying to find this page..");
-            HTML = "error";
-            break;
-    };
+//         default:
+//             console.log("error trying to find this page..");
+//             HTML = "error";
+//             break;
+//     };
 
-    if (currentPage != newPage) {
-        content.textContent = "";
-        content.appendChild( HTML )
-        currentPage = newPage;
-    };
+//     if (currentPage != newPage) {
+//         content.textContent = "";
+//         content.appendChild( HTML )
+//         currentPage = newPage;
+//     };
     
-};
+// };
 
 // FROM INTERACTION
 function getAllItems( el ) {
@@ -181,7 +181,8 @@ function getNewEndTime( start ) {
 function setupHours(){
     hourUL.textContent = "";
 
-    let n = Math.ceil( gridUL.offsetWidth / minutePixels );
+    // let n = Math.ceil( gridUL.offsetWidth / minutePixels );
+    let n = 24;
     console.log(`n hours: ${n}`)
 
     // grid start time ==??
@@ -344,8 +345,8 @@ function resize( e ) {
 
     console.log(`resizing window!`)
     
-    updateMinutePixelScale();
     
+    updateMinutePixelScale();
 
     gridEndTime = gridStartTime + gridUL.offsetWidth;
     
@@ -527,12 +528,22 @@ const drag = ( e ) => {
 
     if ( panning ){
         const clientX = e.clientX || e.touches[0].clientX;
-        const clientY = e.clientY || e.touches[0].clientY;
+        // const clientY = e.clientY || e.touches[0].clientY;
 
         const pointerOffsetX = clientX - pointerStartX;
         
-        gridStartTime -= pointerOffsetX;
-        gridEndTime -= pointerOffsetX;
+        if ( gridStartTime - pointerOffsetX <= 0 ) {
+            // let t = abs( gridStartTime - pointerOffsetX )
+            gridEndTime -= Math.abs( gridStartTime );
+            gridStartTime = 0;
+        } else if ( gridEndTime-pointerOffsetX >= hoursToPixels(24) ) {
+            let t = Math.abs( hoursToPixels(24) - gridEndTime);
+            gridStartTime += t;
+            gridEndTime = hoursToPixels(24);
+        } else {
+            gridStartTime -= pointerOffsetX;
+            gridEndTime -= pointerOffsetX;
+        };
         
         pointerStartX = clientX;
         const allTasks = project.getAll();
@@ -556,32 +567,32 @@ const drag = ( e ) => {
 
         allHours.forEach( hr => {
             
-            if( parseInt( hr.id ) > gridEndTime ) {
-                //put in front!
-                console.log( `moving to front ${hr.id}` );
-                hr.id = firstID - minutePixels;
+        //     if( parseInt( hr.id ) > gridEndTime+5 ) {
+        //         //put in front!
+        //         console.log( `moving to front ${hr.id}` );
+        //         hr.id = firstID - minutePixels;
                 
-                let newHour = firstHr - 1;
-                if( newHour < 0 ) { newHour = 23; };
-                hr.textContent = newHour;
+        //         let newHour = firstHr - 1;
+        //         if( newHour < 0 ) { newHour = 23; };
+        //         hr.textContent = newHour;
 
-                console.log( `new id ${hr.id}` );
-                hourUL.prepend( hr );
+        //         console.log( `new id ${hr.id}` );
+        //         hourUL.prepend( hr );
 
-            } else  if( parseInt( hr.id ) < gridStartTime ) {
-                // put to end!!
-                console.log( `moving to back ${ hr.id }` );
-                console.log( hr );
+        //     } else  if ( parseInt( hr.id ) < gridStartTime-5 ) {
+        //         // put to end!!
+        //         console.log( `moving to back ${ hr.id }` );
+        //         console.log( hr );
 
-                hr.id = lastID + minutePixels;
+        //         hr.id = lastID + minutePixels;
                 
-                let newHour = lastHr + 1;
-                if( newHour > 23 ) { newHour = 0; };
-                hr.textContent = newHour;
+        //         let newHour = lastHr + 1;
+        //         if( newHour > 23 ) { newHour = 0; };
+        //         hr.textContent = newHour;
 
-                console.log( `new id ${hr.id}` );
-                hourUL.appendChild( hr );
-            };
+        //         console.log( `new id ${hr.id}` );
+        //         hourUL.appendChild( hr );
+        //     };
 
             pageBuilder.writeCSS_Hour( hr, hr.id, gridStartTime )
 
