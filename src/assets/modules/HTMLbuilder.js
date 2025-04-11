@@ -154,9 +154,9 @@ class PageBuilder {
         const leftDiv = this.createElement("div", "left");
         const taskListUl = this.createElement("ul", "reorderable-list");
         const rightDiv = this.createElement("div", "right");
-        const dateUl = this.createElement("ul", "date flex-h");
-        const hourUl = this.createElement("ul", "hour flex-h oversize");
-        const gridUl = this.createElement("ul", "grid pan reorderable-bars oversize");
+        // const dateUl = this.createElement("ul", "date flex-h");
+        const hourUl = this.createElement("ul", "hour flex-h debugE");
+        const gridUl = this.createElement("ul", "grid pan reorderable-bars debugD");
         const secDiv = this.createElement("div", "flex-h-left-bottom");
         const secLeftDiv = this.createElement("div", "left");
         const buttonHolderDiv = this.createElement("div", "flex-h-center");
@@ -168,7 +168,7 @@ class PageBuilder {
         leftDiv.id = "left";
         taskListUl.id = "task-list";
         rightDiv.id = "right";
-        dateUl.id = "date";
+        // dateUl.id = "date";
         hourUl.id = "hour";
         gridUl.id = "grid";
         newTaskButton.id = "new-task";
@@ -181,7 +181,7 @@ class PageBuilder {
         secDiv.appendChild( secLeftDiv );
         secDiv.appendChild( secRightDiv );
 
-        rightDiv.appendChild( dateUl );
+        // rightDiv.appendChild( dateUl );
         rightDiv.appendChild( hourUl );
         rightDiv.appendChild( gridUl );
         leftDiv.appendChild( taskListUl );

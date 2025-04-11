@@ -105,14 +105,14 @@ class Task {
     set title (val) { if ( typeof val == 'string' ){  this.#title = val; }; };
     get title () { return this.#title; };
 
-    set startMin (val) { if ( typeof val == 'number' ){
+    set startMinute (val) { if ( typeof val == 'number' ){
         console.log(`writing start time! time is ${ val }`)
         this.#startMin = val; }; };
-    get startMin () { return this.#startMin; };
+    get startMinute () { return this.#startMin; };
 
     // set endMin (val) { if ( typeof val == 'number' ){ this.#endMin = val; }; };
     
-    set endMin (val) {
+    set endMinute (val) {
         if ( typeof val == 'number' ){
             if ( val - this.#startMin <= 0) {
 
@@ -122,7 +122,7 @@ class Task {
             this.#endMin = val;        
         };
     };
-    get endMin () { return this.#endMin; };
+    get endMinute () { return this.#endMin; };
 
     get duration () {
         // let sec = this.#endMin - this.#startMin;
