@@ -81,6 +81,7 @@ class Task {
     #isComplete = false;
     #startMin = 0;
     #endMin = 0;
+    #displayOrder = -1;
     // #startDate = 3; //1-96 >> 0-24hrs * 4
     // #endDate = 15;
     // #startDate = 0; // FORMALIZE LATER
@@ -110,6 +111,8 @@ class Task {
         this.#startMin = val; }; };
     get startMinute () { return this.#startMin; };
 
+    set displayOrder ( val ) { this.#displayOrder = val; }
+    get displayOrder() { return this.#displayOrder; };
     // set endMin (val) { if ( typeof val == 'number' ){ this.#endMin = val; }; };
     
     set endMinute (val) {
@@ -217,6 +220,8 @@ class Project {
         if ( this.isNotTask(task) ) { return 0; }
 
         if ( task.id < 0 ) { task.id = this.#database.length; };
+        if ( task.displayOrder < 0 ) { task.displayOrder = task.id; };
+        
         console.log(`writing task to Project database, id ${ task.id }, ${ task.title } `);
         this.#database[ task.id ] = task;
     };
@@ -227,6 +232,23 @@ class Project {
         console.log(`database can't find task( ${id} / ( ${id} )), sending a blank task`);
         return new Task();
     };
+
+    reOrderTask( task, newId) { task.id = newId; }
+
+    setReorder() {
+        const newOrder = [];
+        this.#database.forEach( ( task ) => {
+            newOrder[ task.id ] = task;
+        } );
+        this.#database = [];
+
+        let n = 0;
+        newOrder.forEach( ( task ) => {
+            task.id = n;
+            this.#database.push( task )
+            n += 1;
+        });
+    }
 
     getAll() { return this.#database; }
 

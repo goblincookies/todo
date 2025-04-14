@@ -3,7 +3,6 @@ import { Task, Project, Database } from "./assets/modules/DATAmanager";
 import { PageBuilder } from "./assets/modules/HTMLbuilder";
 
 const pageBuilder = new PageBuilder();
-const project = new Project();
 const database = new Database();
 // const converter = new Converter();
 const content = document.getElementById("content");
@@ -13,6 +12,8 @@ const page = {
     PROJECT: 1,
     TASK: 2,
 }
+
+let project
 
 let currentPage = page.PROJECT;
 let leftSec;
@@ -202,8 +203,34 @@ function setupHours(){
     };
 };
 
-function fillExistingTasks() {
+function fillExistingTasks( id ) {
+    console.log(`filling existing tasks!`)
+    let proj = database.getProject( id );
+    console.log( proj );
+    proj.getAll().forEach( task => {
+        console.log( `existing tasks here` )
+        const taskHTML = pageBuilder.getHTML_Task( task );
+        const barHTML = pageBuilder.getHTML_Bar( task );
+        taskList.appendChild( taskHTML );
+        gridUL.appendChild( barHTML );
+        
+        pageBuilder.writeCSS_Resize_Task(
+            barHTML.querySelector(".bar"),
+            task.startMinute, task.endMinute,
+            gridStartTime,
+            gridEndTime
+        );
 
+        taskHTML.querySelector( "button.delete" ).addEventListener( 'click', deleteTask )
+        taskHTML.querySelector("button.switch-color").addEventListener( "click", switchColor );
+        
+        const titleInput = taskHTML.querySelector("input.title");
+        titleInput.addEventListener( 'blur', writeTaskTitle );
+        titleInput.addEventListener( 'keydown', writeTaskTitle );
+
+    });
+
+    updateListeners();
 };
 
 function fillExistingProjects() {
@@ -257,7 +284,7 @@ function editProject( e ) {
 function drawPage( pg, id ) {
     content.textContent = "";
 
-    switch( pg) {
+    switch( pg ) {
         case page.PROJECT:
 
             console.log("project page");
@@ -289,6 +316,7 @@ function drawPage( pg, id ) {
 
             // gridStartTime = hoursToPixels( startingDisplayHour );
             console.log(`grid start: ${gridStartTime}`)
+            gridStartTime = 0;
             gridStartTime = gridStartTime - Math.max(0, ( gridUL.offsetWidth - hoursToPixels( 24 ) ));
             gridStartTime = Math.max(0, gridStartTime );
             gridEndTime = Math.min( hoursToPixels( 24 ), gridUL.offsetWidth );
@@ -313,7 +341,9 @@ function drawPage( pg, id ) {
             document.addEventListener("touchend", dragEnd);
             window.addEventListener('resize', resize);
 
-            fillExistingTasks();
+            project = database.getProject( id );
+
+            fillExistingTasks( id );
 
             break;
         default:
@@ -331,8 +361,11 @@ function updateMinutePixelScale(){
     minutePixels = 60;
 
     if ( hoursToPixels(24) <= gridUL.offsetWidth ){
-        // NOT ENOUGH, SCALE
+        // NOT ENOUGH, SCALE!
         console.log(`adjusting minute pixels and snap res`)
+
+        // FOR EACH TASK, ALSO SCALE THE START AND END!!
+        
         minutePixels = gridUL.offsetWidth / 24;
         gridStartTime = 0;
         gridEndTime = hoursToPixels(24);
@@ -344,8 +377,7 @@ function updateMinutePixelScale(){
 function resize( e ) {
 
     console.log(`resizing window!`)
-    
-    
+
     updateMinutePixelScale();
 
     gridEndTime = gridStartTime + gridUL.offsetWidth;
@@ -659,7 +691,7 @@ function updateIdleItemsStateAndPosition(){
 // DRAG END
 const dragEnd = () => {
     console.log("Drag END");
-    if (resizingBar){
+    if ( resizingBar ){
         resizeLeft = 0;
         resizeRight = 0;
         resizingBar = null;
@@ -682,6 +714,7 @@ function applyNewItemOrder() {
     Object.values( obj ).forEach( el => {
 
         const reorderedItems = [];
+        const reorderedTasks = [];
 
         getAllItems( el ).forEach( (item, index) => {
             if ( item === draggableItem[ el ]) {
@@ -703,8 +736,17 @@ function applyNewItemOrder() {
         };
 
         reorderedItems.forEach( ( item ) => {
+            reorderedTasks.push( project.getTask( item.id.split("-")[1] ) )
+        } );
+        
+        let n = 0;
+        reorderedItems.forEach( ( item ) => {
             draggableList[ el ].appendChild( item );
+
+            project.reOrderTask( reorderedTasks[ n ], n);
+            n++;
         });
+        project.setReorder();
     });
 };
 
