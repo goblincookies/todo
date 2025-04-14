@@ -311,7 +311,8 @@ function drawPage( pg, id ) {
             hourUL = document.getElementById("hour");
             
             header.classList.remove("remove");
-            document.getElementById( "active-title" ).value = database.getProject( id ).title;
+            const titleInput = document.getElementById( "active-title" )
+            titleInput.value = database.getProject( id ).title;
 
             dayEnd = hoursToPixels( 24 );
 
@@ -339,6 +340,9 @@ function drawPage( pg, id ) {
             newTask.addEventListener("click", createNewTask );
 
             createListeners();
+
+            titleInput.addEventListener( 'blur', writeProjectTitle );
+            titleInput.addEventListener( 'keydown', writeProjectTitle );
 
             document.addEventListener("mouseup", dragEnd );
             document.addEventListener("touchend", dragEnd);
@@ -901,6 +905,37 @@ function writeProject( e ) {
         return
     };
 
+};
+
+function writeProjectTitle( e ) {
+    if (e.key === 'Enter') {
+        console.log("enter");
+
+        e.target.blur();
+        return;
+    };
+
+    if (e.key === 'Escape') {
+        console.log("escape");
+
+        e.currentTarget.value = project.title;
+
+        editSave = false;
+        e.target.blur();
+        return;
+    };
+
+    if( e.type == "blur" ) {
+
+        if( editSave ) {
+            console.log('saving to database');
+
+            project.title = e.currentTarget.value;
+            database.writeProject( project );
+        };
+        editSave = true;
+        return
+    };
 }
 
 function writeTaskTitle( e ) {
