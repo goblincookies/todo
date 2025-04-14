@@ -263,7 +263,10 @@ function fillExistingProjects() {
 };
 
 function deleteProject( e ) {
-
+    const id = e.currentTarget.id.split("-")[1];
+    const projectHTML = document.getElementById(`project-${id}`);
+    database.deleteProject( id );
+    projectHTML.remove();
 };
 
 function editProject( e ) {
