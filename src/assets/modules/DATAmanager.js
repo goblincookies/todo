@@ -296,6 +296,27 @@ class Database {
 
     getAll() { return this.#database; }
 
+    reOrderTask( proj, newId) {
+        console.log( `updating proj ${proj.title} from id ${proj.id} to ${newId} `)
+        proj.id = newId; }
+
+    setReorder() {
+        const newOrder = [];
+        this.#database.forEach( ( proj ) => {
+            newOrder[ proj.id ] = proj;
+        } );
+        this.#database = [];
+
+        let n = 0;
+        newOrder.forEach( ( proj ) => {
+            console.log( `writing project ${proj.title} to id ${proj.id}` )
+
+            proj.id = n;
+            this.#database.push( proj )
+            n += 1;
+        });
+    };
+
 }
 
 // export { Row }

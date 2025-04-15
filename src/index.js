@@ -26,6 +26,13 @@ let task;
 let projects;
 let header;
 
+let reorderingTasks = true;
+
+const reorder = {
+    TASK:0,
+    PROJECT:1
+}
+
 const obj = {
     TASK:0,
     BARS:1
@@ -39,6 +46,7 @@ let resizingBarHTML="";
 let resizeLeft = 0;
 let resizeRight = 0;
 let minutePixels = 60
+
 
 const dayStart = 0;
 let dayEnd = 24 * minutePixels;
@@ -57,36 +65,6 @@ let pointerStartY;
 let itemsGap = 0;
 let items = [];
 
-
-// function switchPage( pg ) {
-//     console.log( "switching page" );
-//     let newPage = page.UNKNOWN;
-//     let HTML;
-
-//     switch( pg ) {
-//         case page.PROJECT:
-//             newPage = page.PROJECT;
-//             HTML = pageBuilder.getHTML_ProjectSelect();
-//             break;
-
-//         case page.TASK:
-//             newPage = page.TASK;
-//             HTML = pageBuilder.getHTML_ProjectPage();
-//             break;
-
-//         default:
-//             console.log("error trying to find this page..");
-//             HTML = "error";
-//             break;
-//     };
-
-//     if (currentPage != newPage) {
-//         content.textContent = "";
-//         content.appendChild( HTML )
-//         currentPage = newPage;
-//     };
-    
-// };
 
 // FROM INTERACTION
 function getAllItems( el ) {
@@ -254,9 +232,11 @@ function fillExistingProjects() {
         // inputHTML.disabled = true;
         titleButtonHTML.addEventListener( 'click', ( e ) => {
             e.preventDefault();
-            console.log("clicky clicky")
-            drawPage( page.TASK, id );
+            let clickId = e.currentTarget.id.split("-")[1];
+            console.log( `clicky clicky opening project id: ${ clickId }`)
+            drawPage( page.TASK, clickId );
         });
+        
         projectHTML.querySelector("button.delete").addEventListener( 'click', deleteProject );
         projectHTML.querySelector("button.edit").addEventListener( 'click', editProject );
     });
@@ -298,6 +278,8 @@ function drawPage( pg, id ) {
             const newProject = document.getElementById( "new-project" );
             newProject.addEventListener( "click", createNewProject );
             fillExistingProjects();
+            createListeners();
+
             break;
 
         case page.TASK:
@@ -400,17 +382,20 @@ function resize( e ) {
     
     // endTime = getNewEndTime( startTime );
     setupHours();
+    
+    if( currentPage == page.TASK ) {
+        const allTasks = project.getAll();
+        allTasks.forEach( task => {
+            const HTML = document.getElementById( `bar-${ task.id }` );
+            pageBuilder.writeCSS_Resize_Task(
+                HTML,
+                task.startMinute, task.endMinute,
+                gridStartTime,
+                gridEndTime
+            );
+        });
+    }
 
-    const allTasks = project.getAll();
-    allTasks.forEach( task => {
-        const HTML = document.getElementById( `bar-${ task.id }` );
-        pageBuilder.writeCSS_Resize_Task(
-            HTML,
-            task.startMinute, task.endMinute,
-            gridStartTime,
-            gridEndTime
-        );
-    });
 };
 
 function getResizeTask( node ) {
@@ -428,10 +413,17 @@ const dragStart = (e) => {
         draggableItem[ obj.TASK ] = e.target.closest(".reorderable");
         let grabbedID = draggableItem[ obj.TASK ].id;
         grabbedID = grabbedID.split("-")[1];
-        draggableItem[ obj.BARS ] = document.getElementById(`bar-${grabbedID}`).parentNode;
+
+        if ( document.getElementById(`bar-${grabbedID}`) ){
+            reorderingTasks = true;
+            draggableItem[ obj.BARS ] = document.getElementById(`bar-${grabbedID}`).parentNode;
+            draggableList[ obj.BARS ] = document.querySelector(".reorderable-bars");
+        } else {
+            reorderingTasks = false;
+        }
 
         draggableList[ obj.TASK ] = e.target.closest(".reorderable-list");
-        draggableList[ obj.BARS ] = document.querySelector(".reorderable-bars");
+
         
         if(!draggableItem[ obj.TASK ]) return;
 
@@ -504,20 +496,37 @@ function disablePageScroll(){
 };
 
 function initItemState() {
-    Object.values( obj ).forEach( el => {
-        getIdleItems( el ).forEach( (item, i) => {
-            if( getAllItems( el ).indexOf( draggableItem[ el ] ) > i ) {
+    if ( reorderingTasks ) {
+        Object.values( obj ).forEach( el => {
+            getIdleItems( el ).forEach( (item, i) => {
+                if( getAllItems( el ).indexOf( draggableItem[ el ] ) > i ) {
+                    item.dataset.isAbove = '';
+                };
+            });
+        });
+    } else {
+        getIdleItems( obj.TASK ).forEach( (item, i) => {
+            if( getAllItems( obj.TASK ).indexOf( draggableItem[ obj.TASK ] ) > i ) {
                 item.dataset.isAbove = '';
             };
         });
-    });
+    }
 };
 
 function initDraggableItem() {
-    Object.values( obj ).forEach( el => {
-        draggableItem[ el ].classList.remove("is-idle");
-        draggableItem[ el ].classList.add("is-dragging");
-    });
+    draggableItem[ obj.TASK  ].classList.remove("is-idle");
+    draggableItem[ obj.TASK  ].classList.add("is-dragging");
+
+
+    if ( reorderingTasks ) {
+        draggableItem[ obj.BARS  ].classList.remove("is-idle");
+        draggableItem[ obj.BARS  ].classList.add("is-dragging");
+    }
+
+    // Object.values( obj ).forEach( el => {
+    //     draggableItem[ el ].classList.remove("is-idle");
+    //     draggableItem[ el ].classList.add("is-dragging");
+    // });
 };
 
 // DRAG
@@ -534,7 +543,9 @@ const drag = ( e ) => {
         const pointerOffsetY = clientY - pointerStartY;
     
         draggableItem[ obj.TASK ].style.transform = `translate(${pointerOffsetX}px, ${pointerOffsetY}px)`
-        draggableItem[ obj.BARS ].style.transform = `translateY(${pointerOffsetY}px)`;
+        if( reorderingTasks ) {
+            draggableItem[ obj.BARS ].style.transform = `translateY(${pointerOffsetY}px)`;
+        }
         
         updateIdleItemsStateAndPosition( );
     };
@@ -652,35 +663,39 @@ function updateIdleItemsStateAndPosition(){
     const draggableItemRect = draggableItem[ obj.TASK ].getBoundingClientRect();
     const draggableItemY = draggableItemRect.top + draggableItemRect.height / 2;
 
-    Object.values( obj ).forEach( el => {
-        // UPDATE STATE
-        getIdleItems( el ).forEach( (item) => {
-            const itemRect = item.getBoundingClientRect();
-            const itemY = itemRect.top + itemRect.height/2;
-            if ( isItemAbove(item)) {
-                if( draggableItemY <= itemY) {
-                    item.dataset.isToggled = '';
-                } else {
-                    delete item.dataset.isToggled;
-                }
-            } else {
-                if( draggableItemY >= itemY) {
-                    item.dataset.isToggled = '';
-                } else {
-                    delete item.dataset.isToggled;
-                };
-            };
-        });
 
-        // UPDATE POSITIONS
-        getIdleItems( el ).forEach( (item) => {
-            if( isItemToggled( item ) ) {
-                const direction = isItemAbove( item ) ? 1 : -1;
-                item.style.transform = `translateY( ${ direction * (draggableItemRect.height + itemsGap)}px)`;
-            } else {
-                item.style.transform = '';
-            };
-        });
+    Object.values( obj ).forEach( el => {
+
+        if( el === obj.TASK || (el=== obj.BARS && reorderingTasks )){
+            // UPDATE STATE
+            getIdleItems( el ).forEach( (item) => {
+                const itemRect = item.getBoundingClientRect();
+                const itemY = itemRect.top + itemRect.height/2;
+                if ( isItemAbove(item)) {
+                    if( draggableItemY <= itemY) {
+                        item.dataset.isToggled = '';
+                    } else {
+                        delete item.dataset.isToggled;
+                    }
+                } else {
+                    if( draggableItemY >= itemY) {
+                        item.dataset.isToggled = '';
+                    } else {
+                        delete item.dataset.isToggled;
+                    };
+                };
+            });
+    
+            // UPDATE POSITIONS
+            getIdleItems( el ).forEach( (item) => {
+                if( isItemToggled( item ) ) {
+                    const direction = isItemAbove( item ) ? 1 : -1;
+                    item.style.transform = `translateY( ${ direction * (draggableItemRect.height + itemsGap)}px)`;
+                } else {
+                    item.style.transform = '';
+                };
+            });
+        };
     });
     
     // DUPLICATE??? vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
@@ -718,43 +733,85 @@ const dragEnd = () => {
 
 function applyNewItemOrder() {
 
+
     Object.values( obj ).forEach( el => {
 
-        const reorderedItems = [];
-        const reorderedTasks = [];
-
-        getAllItems( el ).forEach( (item, index) => {
-            if ( item === draggableItem[ el ]) {
-                return;
-            };
-            if( !isItemToggled( item )) {
-                reorderedItems[ index ] = item;
-                return;
-            };
-            const newIndex = isItemAbove( item ) ? index + 1 : index -1;
-            reorderedItems[newIndex] = item;
-        } );
-
-        for (let index = 0; index < getAllItems( el ).length; index++) {
-            const item = reorderedItems[ index ];
-            if( typeof item === 'undefined' ) {
-                reorderedItems[index] = draggableItem[ el ];
-            };
-        };
-
-        reorderedItems.forEach( ( item ) => {
-            reorderedTasks.push( project.getTask( item.id.split("-")[1] ) )
-        } );
+        if( el === obj.TASK || (el=== obj.BARS && reorderingTasks )){
         
-        let n = 0;
-        reorderedItems.forEach( ( item ) => {
-            draggableList[ el ].appendChild( item );
+            const reorderedItems = [];
+            const reorderedTasks = [];
 
-            project.reOrderTask( reorderedTasks[ n ], n);
-            n++;
-        });
-        project.setReorder();
+            getAllItems( el ).forEach( (item, index) => {
+                if ( item === draggableItem[ el ]) {
+                    return;
+                };
+                if( !isItemToggled( item )) {
+                    reorderedItems[ index ] = item;
+                    return;
+                };
+                const newIndex = isItemAbove( item ) ? index + 1 : index -1;
+                reorderedItems[newIndex] = item;
+            } );
+
+            for (let index = 0; index < getAllItems( el ).length; index++) {
+                const item = reorderedItems[ index ];
+                if( typeof item === 'undefined' ) {
+                    reorderedItems[index] = draggableItem[ el ];
+                };
+            };
+
+            if( reorderingTasks ) {
+                // THIS SAVES TASKS, BUT NOT PROJECTS
+                reorderedItems.forEach( ( item ) => {
+                    reorderedTasks.push( project.getTask( item.id.split("-")[1] ) )
+                } );
+                
+                let n = 0;
+                reorderedItems.forEach( ( item ) => {
+
+                    draggableList[ el ].appendChild( item );
+                    if( el === obj.TASK){
+                        item.id = `task-${ n }`;
+                        item.querySelector(".delete").id=`delete-${ n }`;
+                        item.querySelector(".title").id=`title-${ n }`;
+                        item.querySelector(".switch-color").id=`color-${ n }`;
+
+                    } else {
+                        item.querySelector(".bar").id = `bar-${ n }`;
+                    }
+    
+                    project.reOrderTask( reorderedTasks[ n ], n);
+                    n++;
+                });
+                project.setReorder();
+
+            } else {
+
+                reorderedItems.forEach( ( item ) => {
+                    reorderedTasks.push( database.getProject( item.id.split("-")[1] ) )
+                } );
+                
+                let n = 0;
+                reorderedItems.forEach( ( item ) => {
+                    draggableList[ el ].appendChild( item );
+                    item.id = `project-${ n }`;
+                    item.querySelector("button").id = `button-${ n }`
+                    item.querySelector("input").id = `input-${ n }`;
+    
+                    database.reOrderTask( reorderedTasks[ n ], n);
+                    n++;
+                });
+                database.setReorder();
+            }
+
+        };
     });
+
+    // MAKE SURE THE BUTTON IS LAST
+    if ( !reorderingTasks ){
+        const button = document.querySelector( ".new-project" );
+        draggableList[ obj.TASK ].appendChild( button );
+    };
 };
 
 function cleanup() {
@@ -774,20 +831,25 @@ function cleanup() {
 
 function unsetDraggable() {
     Object.values( obj ).forEach( el => {
-        draggableItem[ el ].style = null;
-        draggableItem[ el ].classList.remove("is-dragging");
-        draggableItem[ el ].classList.add("is-idle");
-        draggableItem[ el ] = null;
+        if( el === obj.TASK || (el=== obj.BARS && reorderingTasks )){
+            draggableItem[ el ].style.transform = null;
+            draggableItem[ el ].classList.remove("is-dragging");
+            draggableItem[ el ].classList.add("is-idle");
+            draggableItem[ el ] = null;
+        };
     });
 };
 
 function unsetItemState() {
     Object.values( obj ).forEach( el => {
-        getIdleItems( el ).forEach( (item, i)=> {
-            delete item.dataset.isAbove;
-            delete item.dataset.isToggled;
-            item.style.transform = '';
-        });
+        if( el === obj.TASK || (el=== obj.BARS && reorderingTasks )){
+        
+            getIdleItems( el ).forEach( (item, i)=> {
+                delete item.dataset.isAbove;
+                delete item.dataset.isToggled;
+                item.style.transform = '';
+            });
+        };
     });
 };
 

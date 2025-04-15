@@ -99,8 +99,8 @@ class PageBuilder {
         //     </li>
         // </ul>
 
-        const mainUL = this.createElement("ul", "");
-        const mainLi = this.createElement("li", "flex-h-left");
+        const mainUL = this.createElement("ul", "reorderable-list");
+        const mainLi = this.createElement("li", "flex-h-left new-project");
         const spacerDiv = this.createElement("div", "spacer-5");
         const projButton = this.createElement("button", "task-button");
         const projH3 = this.createElement("h3", "text-sm upper gray0 trunc");
@@ -155,8 +155,8 @@ class PageBuilder {
         const taskListUl = this.createElement("ul", "reorderable-list");
         const rightDiv = this.createElement("div", "right");
         // const dateUl = this.createElement("ul", "date flex-h");
-        const hourUl = this.createElement("ul", "hour flex-h debugE");
-        const gridUl = this.createElement("ul", "grid pan reorderable-bars debugD");
+        const hourUl = this.createElement("ul", "hour flex-h");
+        const gridUl = this.createElement("ul", "grid pan reorderable-bars");
         const secDiv = this.createElement("div", "flex-h-left-bottom");
         const secLeftDiv = this.createElement("div", "left");
         const buttonHolderDiv = this.createElement("div", "flex-h-center");
@@ -336,8 +336,8 @@ class PageBuilder {
         //     </div>
         // </li>
 
-        const mainLi = this.createElement( "li", "flex-h-left gap-1 reveal fade-in pad-sides min-size" );
-        const grabImg = this.createElement( "img", "icon-md hidden grab", dragVert );
+        const mainLi = this.createElement( "li", "flex-h-left gap-1 reveal fade-in pad-sides min-size reorderable is-idle" );
+        const grabImg = this.createElement( "img", "icon-md hidden grab drag-handle no-select", dragVert );
         
         const titleButton = this.createElement( "button", "project basic-button flex-h-left pad-wide-right text-lg ital heavy upper trunc" );
         const titleInput = this.createElement( "input", "project text-lg ital heavy upper trunc remove" );
@@ -424,7 +424,9 @@ class PageBuilder {
         taskDiv.classList.add( ( (task.isSection) ? "section" : "task" ) );
 
         const dragButton = this.createElement("div", "img-button hidden grab drag-handle debugA");
-        const dragImg = this.createElement("img", "no-select", fileDrag);
+        // const dragImg = this.createElement("img", "no-select", fileDrag);
+        const dragImg = this.createElement("img", "no-select", dragVert);
+
         dragButton.appendChild( dragImg );
         taskDiv.appendChild( dragButton );
 

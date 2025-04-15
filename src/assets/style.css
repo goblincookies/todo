@@ -187,7 +187,7 @@ img{
     width: auto;
 }
 .icon-lg {
-    height: 5rem;
+    height: 4rem;
     width: auto;
 }
 button.project,
@@ -345,8 +345,9 @@ button { cursor: pointer; }
     text-overflow: ellipsis;
 }
 .time {
-    width: 5rem;
+    width: 40px;
     text-align: right;
+    flex-shrink: 0;
 }
 .color {
     margin-left: 1rem;
@@ -497,18 +498,11 @@ dialog {
 .fade-in:hover {
     background-color: var(--white);
     box-shadow: 2px 2px 6px #00000031;
-
+}
+.hover-blue:hover {
+    filter: invert(74%) sepia(54%) saturate(4182%) hue-rotate(146deg) brightness(104%) contrast(110%);
 }
 
-#project-1{
-    width: 1100px;
-}
-#project-2{
-    width: 850px;
-}
-#project-3{
-    width: 650px;
-}
 .test {
     flex-grow: 1;
     /* flex-shrink: 1; */
