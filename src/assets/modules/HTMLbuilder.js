@@ -242,7 +242,12 @@ class PageBuilder {
         barDiv.appendChild(rightSpan);
         mainDiv.appendChild(barDiv);
 
-        barDiv.style.backgroundColor = task.color;
+        if( task.isComplete ) {
+            this.writeCSS_barCompleted( barDiv );
+        } else {
+            this.writeCSS_barNotCompleted( barDiv, task.color );
+            // barDiv.style.backgroundColor = task.color;
+        }
         return mainDiv;
     };
 
@@ -256,6 +261,14 @@ class PageBuilder {
 
     hideHTML( HTML ) {
         HTML.classList.add("hidden");
+    };
+
+    writeCSS_barCompleted( HTML ){
+        HTML.style.backgroundColor = `#696969`;
+    };
+
+    writeCSS_barNotCompleted( HTML, HEX ){
+        HTML.style.backgroundColor = HEX;
     };
 
     writeCSS_MouseRelative( HTML, posX, posY ){
@@ -402,7 +415,7 @@ class PageBuilder {
         //             <img src="./assets/images/flag.svg" alt="">
         //         </button>
 
-        //         <input type="checkbox" name="" id="">
+        //         <input type="checkbox" name="" id="" class="done">
         //         <input class="title text-sm bold trunc" type="text" value="buy a new amp!!!">
         //         **<h3 class="text-sm bold trunc">buy a new amp!!!</h3>**
         //         <p class="time text-sm">41h 15m</p>
@@ -433,7 +446,7 @@ class PageBuilder {
         const flagButton = this.createElement("button", "img-button");
         const flagImg = this.createElement("img", "", fileFlag );
         flagButton.appendChild(flagImg);
-        const completedCheck = this.createElement("input", "");
+        const completedCheck = this.createElement("input", "done");
         completedCheck.type = "checkbox";
         completedCheck.checked = task.isComplete;
 

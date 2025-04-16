@@ -206,6 +206,9 @@ function fillExistingTasks( id ) {
         titleInput.addEventListener( 'blur', writeTaskTitle );
         titleInput.addEventListener( 'keydown', writeTaskTitle );
 
+        const checkInput = taskHTML.querySelector("input.done");
+        checkInput.addEventListener( 'change', taskCompleteToggle );
+
     });
 
     updateListeners();
@@ -1000,6 +1003,23 @@ function writeProjectTitle( e ) {
     };
 }
 
+function taskCompleteToggle( e ) {
+    // TRIGGERS WHEN TASK CHECKBOX IS CLICKED
+    const id = e.currentTarget.closest("li").id.split("-")[1];
+    const task = project.getTask( id );
+    task.isComplete = e.currentTarget.checked;
+    console.log(`toggeling checkbox: ${task.title}, id: ${task.id}, isComplete: ${task.isComplete}`);
+
+    if( task.isComplete ) {
+        console.log( `gray it out!` );
+        pageBuilder.writeCSS_barCompleted( document.getElementById( `bar-${id}`));
+    } else {
+        console.log( `full color!` );
+        pageBuilder.writeCSS_barNotCompleted( document.getElementById( `bar-${id}`), task.color);
+
+    }
+}
+
 function writeTaskTitle( e ) {
     if (e.key === 'Enter') {
         console.log("enter");
@@ -1108,6 +1128,9 @@ function createNewTask( e ) {
     );
     
     const titleInput = taskHTML.querySelector("input.title");
+    const checkInput = taskHTML.querySelector("input.done");
+    checkInput.addEventListener( 'change', taskCompleteToggle );
+
     titleInput.focus();
     titleInput.select();
     
@@ -1116,6 +1139,7 @@ function createNewTask( e ) {
     // task.addEventListener('focus', editTaskTitle);
     titleInput.addEventListener( 'blur', writeTaskTitle );
     titleInput.addEventListener( 'keydown', writeTaskTitle );
+
 
     updateListeners();
     
