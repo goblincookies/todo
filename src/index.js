@@ -800,8 +800,10 @@ function applyNewItemOrder() {
                 reorderedItems.forEach( ( item ) => {
                     draggableList[ el ].appendChild( item );
                     item.id = `project-${ n }`;
-                    item.querySelector("button").id = `button-${ n }`
+                    item.querySelector("button").id = `button-${ n }`;
                     item.querySelector("input").id = `input-${ n }`;
+                    item.querySelector("button.edit").id = `edit-${ n }`;
+                    item.querySelector("button.delete").id = `delete-${ n }`;
     
                     database.reOrderTask( reorderedTasks[ n ], n);
                     n++;
