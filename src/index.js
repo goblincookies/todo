@@ -207,8 +207,10 @@ function fillExistingTasks( id ) {
         titleInput.addEventListener( 'keydown', writeTaskTitle );
 
         const checkInput = taskHTML.querySelector("input.done");
-        checkInput.addEventListener( 'change', taskCompleteToggle );
+        checkInput.addEventListener( 'change', toggleTaskComplete );
 
+        const flagButton = taskHTML.querySelector("button.flag");
+        flagButton.addEventListener( 'click', toggleTaskPriority );
     });
 
     updateListeners();
@@ -1003,7 +1005,7 @@ function writeProjectTitle( e ) {
     };
 }
 
-function taskCompleteToggle( e ) {
+function toggleTaskComplete( e ) {
     // TRIGGERS WHEN TASK CHECKBOX IS CLICKED
     const id = e.currentTarget.closest("li").id.split("-")[1];
     const task = project.getTask( id );
@@ -1016,9 +1018,17 @@ function taskCompleteToggle( e ) {
     } else {
         console.log( `full color!` );
         pageBuilder.writeCSS_barNotCompleted( document.getElementById( `bar-${id}`), task.color);
+    };
+};
 
-    }
-}
+function toggleTaskPriority( e ) {
+    console.log( `toggling priority` );
+    const id = e.currentTarget.closest("li").id.split("-")[1];
+    const task = project.getTask( id );
+    task.increasePriority();
+
+    pageBuilder.writeCSS_priority( e.currentTarget.querySelector("img"), task );
+};
 
 function writeTaskTitle( e ) {
     if (e.key === 'Enter') {
@@ -1127,10 +1137,13 @@ function createNewTask( e ) {
         gridEndTime
     );
     
-    const titleInput = taskHTML.querySelector("input.title");
     const checkInput = taskHTML.querySelector("input.done");
-    checkInput.addEventListener( 'change', taskCompleteToggle );
+    checkInput.addEventListener( 'change', toggleTaskComplete );
 
+    const flagButton = taskHTML.querySelector("button.flag");
+    flagButton.addEventListener( 'click', toggleTaskPriority );
+    
+    const titleInput = taskHTML.querySelector("input.title");
     titleInput.focus();
     titleInput.select();
     

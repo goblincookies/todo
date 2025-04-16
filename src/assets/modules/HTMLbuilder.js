@@ -1,6 +1,8 @@
 import { Project, Task } from "./DATAmanager";
 import fileClose from "../images/close.svg";
 import fileFlag from "../images/flag.svg";
+import fileFlagFill from "../images/flag_fill.svg";
+
 import fileDrag from "../images/drag.svg";
 import fileCheck from "../images/check.svg";
 import fileArrow from "../images/right.svg";
@@ -10,15 +12,7 @@ import deleteSvg from "../images/delete.svg";
 
 
 
-class PageBuilder {
-
-    priority = {
-        NON: 0,
-        LOW: 1,
-        MED: 2,
-        HIGH:3,
-        CRIT:4
-    };
+class PageBuilder {    
 
     createElement ( type, classes, src) {
         let element = document.createElement( type );
@@ -263,6 +257,18 @@ class PageBuilder {
         HTML.classList.add("hidden");
     };
 
+    writeCSS_priority( HTML, TASK ) {
+        console.log(`adding filter: ${ TASK.priorityFilter }`);
+        if( TASK.priority > 0 ) {
+            HTML.src = fileFlagFill;
+            // console.log( TASK.priorityFilter );
+        } else {
+            HTML.src = fileFlag;
+            // HTML.style.filter = null;
+        };
+        HTML.style.filter = TASK.priorityFilter;
+    };
+
     writeCSS_barCompleted( HTML ){
         HTML.style.backgroundColor = `#696969`;
     };
@@ -273,7 +279,7 @@ class PageBuilder {
 
     writeCSS_MouseRelative( HTML, posX, posY ){
         const rect = HTML.getBoundingClientRect();
-        HTML.style.transform =  `translate(${posX - rect.width/2}px, ${posY - rect.height/2 }px)`
+        HTML.style.transform =  `translate(${posX - rect.width/2}px, ${posY - rect.height/2 }px)`;
     };
 
     writeCSS_NewBackgroundColor( HTML, hex ) {
@@ -443,8 +449,19 @@ class PageBuilder {
         dragButton.appendChild( dragImg );
         taskDiv.appendChild( dragButton );
 
-        const flagButton = this.createElement("button", "img-button");
-        const flagImg = this.createElement("img", "", fileFlag );
+        const flagButton = this.createElement("button", "img-button flag");
+        
+        let flagImg;
+        console.log( `getting html for flag, priority is: ${ task.priority }`)
+        if( task.priority > 0 ){
+            flagImg = this.createElement("img", "", fileFlagFill );
+            flagImg.style.filter = task.priorityFilter;
+            console.log( flagImg.style.filter )
+        } else {
+            flagImg = this.createElement("img", "", fileFlag );
+        };
+
+
         flagButton.appendChild(flagImg);
         const completedCheck = this.createElement("input", "done");
         completedCheck.type = "checkbox";
@@ -494,24 +511,5 @@ class PageBuilder {
     };
 
 };
-
-
-// row = new Row( "Today" );
-// row.setTitle ( "Title" );
-// row.setPriority ( priority.High );
-// row.isComplete ( false );
-// row.isComplete ( false );
-// row.getTitle() => "Title";
-// row.getDurration() => "41h 15m";
-// row.getColor() => "#fff";
-// row.getStart() =>
-// row.getCell_XY() => 
-// row.getRow() => 3
-// row.getHTML_all();
-// row.getHTML_color();
-// row.getHTML_flag();
-
-
-
 
 export { PageBuilder };

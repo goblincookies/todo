@@ -1,13 +1,5 @@
 class Task {
 
-    priority = {
-        NON: 0,
-        LOW: 1,
-        MED: 2,
-        HIGH:3,
-        CRIT:4
-    }
-
     #colorsAll = [
         "#0000fc",
         "#0078f8",
@@ -69,10 +61,16 @@ class Task {
         "#008888",
         "#00e8d8",
         "#00fcfc"
-
-
-
     ];
+
+    #priorityColors = [ `#000`, '#fca044', `#e40058`];
+
+    #priorityFilter = [
+        "",
+        "invert(48%) sepia(55%) saturate(6280%) hue-rotate(127deg) brightness(98%) contrast(101%)",
+        "invert(16%) sepia(100%) saturate(4269%) hue-rotate(327deg) brightness(85%) contrast(113%)"
+    ];
+
 
     #taskID = -1;
     #title = "New Row Title";
@@ -133,13 +131,19 @@ class Task {
         return `${min}m`;
     }
 
-    set priority (val) { if (typeof val == 'number' ){  this.#priority = val; }; };
+    set priority (val) { if (typeof val == 'number' ){
+        val = max( 0, min( val, this.#priorityColors.length - 1 ) );
+        this.#priority = val;
+    }; };
+    
     get priority () { return this.#priority; };
 
     set color (val) { if (typeof val == 'string' ){  this.#color = val; }; };
     get color () { return this.#color; };
     get colorIndex () { return this.#colorIndex; };
     get allColors () { return this.#colorsAll; };
+    get priorityColor() { return this.#priorityColors[ this.#priority ]; };
+    get priorityFilter() { return this.#priorityFilter[ this.#priority ]; };
 
     recordTask( title, isComplete, priority ) {
         this.#title = title;
@@ -147,6 +151,11 @@ class Task {
         this.#priority = priority;
     };
 
+    increasePriority(){
+        this.#priority += 1
+        this.#priority = ( this.#priority % this.#priorityColors.length );        
+        console.log( `changed priority, new priority is: ${ this.#priority }` );
+    };
 };
 
 class Converter {
