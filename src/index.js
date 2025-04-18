@@ -259,30 +259,6 @@ function fillExistingProjects() {
     });
 };
 
-function deleteProject( e ) {
-    const id = e.currentTarget.id.split("-")[1];
-    const projectHTML = document.getElementById(`project-${id}`);
-    database.deleteProject( id );
-        
-    let n = 0;
-    const list = document.getElementById( "projects" );
-    console.log( list )
-    database.getAll().forEach( item => {
-        const HTML = document.getElementById( `project-${ item.id }`);
-        list.appendChild( HTML );
-        HTML.id = `project-${ n }`;
-        HTML.querySelector("button").id = `button-${ n }`;
-        HTML.querySelector("input").id = `input-${ n }`;
-        HTML.querySelector("button.edit").id = `edit-${ n }`;
-        HTML.querySelector("button.delete").id = `delete-${ n }`;
-        database.reOrderTask( HTML, n);
-        n++;
-    });
-    list.append( document.querySelector("li.new-project"));
-    database.setReorder();
-    
-    projectHTML.remove();
-};
 
 function editProject( e ) {
     console.log(`editing project title`);
@@ -509,6 +485,8 @@ const dragStart = (e) => {
     document.addEventListener("mousemove", drag );
     document.addEventListener("touchmove", drag, {passive: false});
     console.log(`finished!`);
+
+    document.addEventListener("mouseleave", dragEnd );
 };
 
 function setItemsGap(){
@@ -573,6 +551,10 @@ const drag = ( e ) => {
     if( draggableItem[ obj.TASK ]) {
         e.preventDefault();
     
+        if ( !e.clientX || !e.clientY ) {
+            dragEnd();
+            return;
+        };
         const clientX = e.clientX || e.touches[0].clientX;
         const clientY = e.clientY || e.touches[0].clientY;
     
@@ -771,6 +753,8 @@ const dragEnd = () => {
 
     document.removeEventListener("mousemove", drag );
     document.removeEventListener("touchmove", drag );
+    document.removeEventListener("mouseleave", dragEnd );
+
 };
 
 function applyNewItemOrder() {
@@ -913,6 +897,50 @@ function deleteTask( e ) {
     parentNode.remove();
     barNode.remove();
 
+    let n = 0;
+
+    project.getAll().forEach( item => {
+        const HTML = document.getElementById( `task-${ item.id }`);
+        const BAR = document.getElementById( `bar-${item.id}` );
+
+        HTML.id = `task-${ n }`;
+        HTML.querySelector(".delete").id=`delete-${ n }`;
+        HTML.querySelector(".title").id=`title-${ n }`;
+        HTML.querySelector(".switch-color").id=`color-${ n }`;
+        BAR.id = `bar-${ n }`;
+
+        project.reOrderTask( item, n);
+        n++;
+    });
+    project.setReorder();    
+
+    writeToStorage();
+};
+
+function deleteProject( e ) {
+    const id = e.currentTarget.id.split("-")[1];
+    const projectHTML = document.getElementById(`project-${id}`);
+    database.deleteProject( id );
+    projectHTML.remove();
+        
+    let n = 0;
+    const list = document.getElementById( "projects" );
+    console.log( list )
+    database.getAll().forEach( item => {
+        const HTML = document.getElementById( `project-${ item.id }`);
+        // list.appendChild( HTML );
+        HTML.id = `project-${ n }`;
+        HTML.querySelector("button").id = `button-${ n }`;
+        HTML.querySelector("input").id = `input-${ n }`;
+        HTML.querySelector("button.edit").id = `edit-${ n }`;
+        HTML.querySelector("button.delete").id = `delete-${ n }`;
+        database.reOrderTask( item, n);
+        n++;
+    });
+
+    // list.append( document.querySelector("li.new-project"));
+    database.setReorder();
+    writeToStorage();
 };
 
 function changedColor( e ) {
