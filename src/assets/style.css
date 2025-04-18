@@ -48,6 +48,7 @@ header > button {
     margin-top: 1rem;
     margin-bottom: 4rem;
 }
+
 .chart {
     background-color: var(--white);
     margin-left: 1rem;
@@ -55,6 +56,7 @@ header > button {
     padding-top: 1rem;
     box-shadow: 2px 2px 6px #00000031;
 }
+
 h1 {
     /* text-transform: uppercase; */
     color: var(--gray0);
@@ -98,11 +100,21 @@ ul { position: relative; }
 .pad-1{ padding: 1rem; }
 .pad-left { padding-left: 2rem; }
 .pad-right { padding-right: 2rem; }
+.marg-left { margin-left: 1rem; }
 .circle { border-radius: 50%; }
 .stroke { border: none; }
 .clear { background-color: transparent; }
 .gap-1 { gap: 1rem; }
 .wide { width: 100%; }
+.complete{
+    background: repeating-linear-gradient(
+        45deg,
+        var(--gray3),
+        var(--gray3) 5px,
+        var(--gray4) 5px,
+        var(--gray4) 10px
+        );
+}
 .square-md {
     height: 3rem;
     width: 3rem;
@@ -316,6 +328,10 @@ button { cursor: pointer; }
         visibility: visible;
     }
 }
+.bar {
+    border: 1px solid black;
+
+}
 .bar:hover{
     border: 1px solid black;
     .resize {
@@ -423,27 +439,30 @@ button { cursor: pointer; }
 .raised{
     z-index: 1;
 }
+
 .is-dragging {
-    background-color: var(--gray3);
-    outline: 4px solid var(--gray3);
-    /* outline-offset: 4px; */
+    /* background-color: var(--gray3); */
+    /* outline: 4px solid var(--gray3); */
+    background-color: var(--accent);
+    outline: 4px solid var(--accent);
     box-shadow: 3px 10px 16px #00000031;
 }
+
 .is-dragging:has( .bar ) {
     z-index: 9;
     overflow: visible;
-
 }
+
 .is-dragging:not(:has(.bar )) {
     z-index: 10;
 }
 
 dialog {
     z-index: 10;
-    /* overflow: hidden; */
     border: none;
     outline: none;
 }
+
 .min-size {
     width: min-content;
     height: fit-content;
@@ -463,10 +482,7 @@ dialog {
     max-height: 100vh;
     max-width: 100vw;
 }
-/* .upper-left-corner {
-    margin-left: 25vh;
-    margin-top: 15vh;
-} */
+
 .grid-inkwell {
     display: grid;
     grid-auto-flow: column ;

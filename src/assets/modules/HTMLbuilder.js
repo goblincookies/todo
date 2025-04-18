@@ -93,7 +93,7 @@ class PageBuilder {
         //     </li>
         // </ul>
 
-        const mainUL = this.createElement("ul", "reorderable-list");
+        const mainUL = this.createElement("ul", "reorderable-list marg-left");
         const mainLi = this.createElement("li", "flex-h-left new-project");
         const spacerDiv = this.createElement("div", "spacer-5");
         const projButton = this.createElement("button", "task-button");
@@ -258,7 +258,7 @@ class PageBuilder {
     };
 
     writeCSS_priority( HTML, TASK ) {
-        console.log(`adding filter: ${ TASK.priorityFilter }`);
+        console.log(`adding filter: ${ TASK.getFilter() }`);
         if( TASK.priority > 0 ) {
             HTML.src = fileFlagFill;
             // console.log( TASK.priorityFilter );
@@ -266,14 +266,16 @@ class PageBuilder {
             HTML.src = fileFlag;
             // HTML.style.filter = null;
         };
-        HTML.style.filter = TASK.priorityFilter;
+        HTML.style.filter = TASK.getFilter() ;
     };
 
     writeCSS_barCompleted( HTML ){
-        HTML.style.backgroundColor = `#696969`;
+        HTML.style.backgroundColor = null;
+        HTML.classList.add( "complete" );
     };
 
     writeCSS_barNotCompleted( HTML, HEX ){
+        HTML.classList.remove( "complete" );
         HTML.style.backgroundColor = HEX;
     };
 
@@ -314,28 +316,7 @@ class PageBuilder {
 
     getHTML_Project( project ) {
         if ( this.isNotProject( project ) ) { return 0; }
-        console.log( project );
-
-        // <li class="flex-h-left gap-1 reveal fade-in pad-sides min-size debugA" id="project-1">
-        //     <img src="./assets/images/dragVert.svg" alt="" class="icon-md hidden grab">
-
-        //     <button class="basic-button flex-h-left pad-wide-right" id = "button-1">
-        //         <input disabled type="text" class="project text-lg ital heavy upper trunc" value="Project Title Is Long">
-        //     </button>
-
-        //     <div class="overlays remove">
-        //         <div class="flex-right">
-        //             <button class="circle square-md stroke clear">
-        //                 <img src="./assets/images/edit.svg" alt="" class="icon-md">
-        //             </button>
-        //             <button class="circle square-md stroke clear">
-        //                 <img src="./assets/images/delete.svg" alt="" class="icon-md">
-        //             </button>
-        //         </div>
-        //     </div>
-        // </li>
-
-        console.log("new!")
+        // console.log( project );
 
         // <li class="flex-h-left gap-1 reveal fade-in pad-sides min-size debugB" id="project-1">
         //     <img src="./assets/images/dragVert.svg" alt="" class="icon-md hidden grab">
@@ -455,7 +436,7 @@ class PageBuilder {
         console.log( `getting html for flag, priority is: ${ task.priority }`)
         if( task.priority > 0 ){
             flagImg = this.createElement("img", "", fileFlagFill );
-            flagImg.style.filter = task.priorityFilter;
+            flagImg.style.filter = task.getFilter();
             console.log( flagImg.style.filter )
         } else {
             flagImg = this.createElement("img", "", fileFlag );

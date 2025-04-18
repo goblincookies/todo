@@ -1,9 +1,10 @@
 import "./assets/style.css";
-import { Task, Project, Database } from "./assets/modules/DATAmanager";
+import { Task, Project, Database, Storage } from "./assets/modules/DATAmanager";
 import { PageBuilder } from "./assets/modules/HTMLbuilder";
 
 const pageBuilder = new PageBuilder();
-const database = new Database();
+let database = new Database();
+const storage = new Storage();
 // const converter = new Converter();
 const content = document.getElementById("content");
 
@@ -101,6 +102,17 @@ function createListeners() {
     });
 
 };
+
+function writeToStorage(){
+    console.log( "writing to storage");
+    storage.writeAllStorage( database );
+};
+
+function pullStorage(){
+    console.log( "pulling storage:");
+    // console.log( storage.getAllStorage() );
+    database = storage.getAllStorage();
+}
 
 function updateListeners() {
     createListeners();
@@ -251,6 +263,24 @@ function deleteProject( e ) {
     const id = e.currentTarget.id.split("-")[1];
     const projectHTML = document.getElementById(`project-${id}`);
     database.deleteProject( id );
+        
+    let n = 0;
+    const list = document.getElementById( "projects" );
+    console.log( list )
+    database.getAll().forEach( item => {
+        const HTML = document.getElementById( `project-${ item.id }`);
+        list.appendChild( HTML );
+        HTML.id = `project-${ n }`;
+        HTML.querySelector("button").id = `button-${ n }`;
+        HTML.querySelector("input").id = `input-${ n }`;
+        HTML.querySelector("button.edit").id = `edit-${ n }`;
+        HTML.querySelector("button.delete").id = `delete-${ n }`;
+        database.reOrderTask( HTML, n);
+        n++;
+    });
+    list.append( document.querySelector("li.new-project"));
+    database.setReorder();
+    
     projectHTML.remove();
 };
 
@@ -274,6 +304,7 @@ function drawPage( pg, id ) {
 
     switch( pg ) {
         case page.PROJECT:
+            pullStorage();
 
             console.log("project page");
             content.append( pageBuilder.getHTML_ProjectSelect() );
@@ -288,6 +319,7 @@ function drawPage( pg, id ) {
             break;
 
         case page.TASK:
+            pullStorage();
 
             content.appendChild( pageBuilder.getHTML_ProjectPage() );
             content.appendChild( pageBuilder.getHTML_Inkwell() );
@@ -568,6 +600,11 @@ const drag = ( e ) => {
         if ( Math.abs( snap ) > 0 ) {
             resizingBar.startMinute += resizeLeft * ( snap );
             resizingBar.endMinute += resizeRight * ( snap );
+
+            if ( resizingBar.endMinute - resizingBar.startMinute <= 0 ) {
+                resizingBar.startMinute -= resizeLeft * ( snap );
+                resizingBar.endMinute -= resizeRight * ( snap );
+            }
             pointerStartX = clientX;
 
             pageBuilder.writeCSS_Resize_Task(
@@ -738,7 +775,6 @@ const dragEnd = () => {
 
 function applyNewItemOrder() {
 
-
     Object.values( obj ).forEach( el => {
 
         if( el === obj.TASK || (el=== obj.BARS && reorderingTasks )){
@@ -819,6 +855,8 @@ function applyNewItemOrder() {
         const button = document.querySelector( ".new-project" );
         draggableList[ obj.TASK ].appendChild( button );
     };
+
+    writeToStorage();
 };
 
 function cleanup() {
@@ -888,9 +926,12 @@ function changedColor( e ) {
         task.color = e.target.closest(".inkwell-square").id;
         const taskColorBox = document.getElementById( `color-${ task.id }` ).children[0];
         const taskBar = document.getElementById( `bar-${ task.id }` );
-        
-        pageBuilder.writeCSS_NewBackgroundColor( taskColorBox, task.color );
-        pageBuilder.writeCSS_NewBackgroundColor( taskBar, task.color );
+        if( !task.isComplete ){
+            pageBuilder.writeCSS_NewBackgroundColor( taskColorBox, task.color );
+            pageBuilder.writeCSS_NewBackgroundColor( taskBar, task.color );
+        }
+
+        writeToStorage();
     };
 
     // ADD LISTENERS TO ALL THE BUTTONS
@@ -925,6 +966,7 @@ function switchColor( e ) {
 
     // ADD A CHECK TO DIALOG
     // console.log( task.color );
+    console.log( task.color );
     const inkwellSquare = document.getElementById( task.color );
     inkwellSquare.appendChild( pageBuilder.getHTML_check() );
     
@@ -970,6 +1012,7 @@ function writeProject( e ) {
         };
 
         editSave = true;
+        writeToStorage();
         drawPage( page.TASK, id );
         return
     };
@@ -1001,6 +1044,7 @@ function writeProjectTitle( e ) {
 
             project.title = e.currentTarget.value;
             database.writeProject( project );
+            writeToStorage();
         };
         editSave = true;
         return
@@ -1021,6 +1065,7 @@ function toggleTaskComplete( e ) {
         console.log( `full color!` );
         pageBuilder.writeCSS_barNotCompleted( document.getElementById( `bar-${id}`), task.color);
     };
+    writeToStorage();
 };
 
 function toggleTaskPriority( e ) {
@@ -1030,6 +1075,7 @@ function toggleTaskPriority( e ) {
     task.increasePriority();
 
     pageBuilder.writeCSS_priority( e.currentTarget.querySelector("img"), task );
+    writeToStorage();
 };
 
 function writeTaskTitle( e ) {
@@ -1060,6 +1106,7 @@ function writeTaskTitle( e ) {
             const task = project.getTask( id );
             task.title = e.currentTarget.value;
             project.writeTask( task );
+            writeToStorage();
         };
         editSave = true;
         return
@@ -1073,6 +1120,7 @@ function createNewProject( e ) {
 
     let proj = new Project();
     database.writeProject( proj );
+    console.log( database )
 
     const projectHTML = pageBuilder.getHTML_Project( proj );
     projectHTML.querySelector(".overlays").remove();
@@ -1081,24 +1129,16 @@ function createNewProject( e ) {
 
     const titleButtonHTML = projectHTML.querySelector("button.project");
     const titleInputHTML = projectHTML.querySelector("input.project");
-
     
     titleButtonHTML.classList.add( "remove" );
     titleInputHTML.classList.remove( "remove" );
     
     console.log( titleButtonHTML )
     console.log( titleInputHTML )
-    // const inputHTML = projectHTML.querySelector("input");
 
     let w = pageBuilder.getWidth_H3( proj.title );
     w = Math.min( w + 400 , document.body.clientWidth - 15 );
     projectHTML.style.width = `${ w }px`;
-
-    // let w = convertRemToPixels( project.title.length ) * 7;
-    // w = Math.min(w, document.body.clientWidth-5 );
-    // console.log( `calculated width: ${w}px`);
-    // projectHTML.style.width = `${w}px`;
-
     
     projects.insertBefore( projectHTML, document.getElementById("projects").lastChild );
     titleInputHTML.focus();
@@ -1107,6 +1147,7 @@ function createNewProject( e ) {
     titleInputHTML.addEventListener( 'blur', writeProject );
     titleInputHTML.addEventListener( 'keydown', writeProject );
 
+    writeToStorage();
 };
 
 function createNewTask( e ) {
@@ -1123,7 +1164,7 @@ function createNewTask( e ) {
     task.startMinute = startMinute;
     task.endMinute = endMinute;
 
-    task.title = task.startMinute + "";
+    task.title = "New Task";
     project.writeTask( task );
 
     const taskHTML = pageBuilder.getHTML_Task( task );
@@ -1157,7 +1198,7 @@ function createNewTask( e ) {
 
 
     updateListeners();
-    
+    writeToStorage();    
 };
 
 
