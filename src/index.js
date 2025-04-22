@@ -1144,7 +1144,7 @@ function resizeBar( HTML, task ) {
 };
 
 function createNewTask( e ) {
-    const startMinute = gridStartTime;
+    const startMinute = gridStartTime + hoursToMinutes( newTaskStartingOffsetHour);
     const endMinute = startMinute + hoursToMinutes( 1 + Math.floor(Math.random() * 3 ) );
 
     console.log( `task--startMinute: ${ startMinute } endMinute: ${ endMinute }` );
