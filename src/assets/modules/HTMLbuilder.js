@@ -289,26 +289,17 @@ class PageBuilder {
     };
 
     writeCSS_Even_Hour( HTML, i, w, p ) {
-        // const rect = HTML.getBoundingClientRect();
-        // console.log(rect.width)
         HTML.style.transform = `translateX( ${ (i*w)-p }px)`;
-        // HTML.style.transform = `translateX( ${ (i*w)}px)`;
     };
 
     writeCSS_Hour( HTML, tS, gS ) {
         HTML.style.left = `${ tS-gS }px`;
     };
 
-    // allBars[-1], task.startDate, task.endDate, gridStartDate, gridEndDate
     writeCSS_Resize_Task( HTML, tS, tE, gS, gE ) {
-        console.log(`ts:${tS}, tE:${tE}, gS:${gS}, gE:${gE},`)
+        // console.log(`ts:${tS}, tE:${tE}, gS:${gS}, gE:${gE}`)
 
-        // let css = "";
-        // let start = Math.max( tS, gS );
-        // let end = Math.min( gE, tE );
-        // console.log(`HTML: ${HTML},`);
         HTML.style.width = `${ tE-tS }px`;
-        // console.log(`transform should be: translateX( ${tS-gS}px)`);
         HTML.style.transform = `translateX( ${ tS-gS }px)`;
         HTML.classList.remove("hidden");
         return;
@@ -316,7 +307,6 @@ class PageBuilder {
 
     getHTML_Project( project ) {
         if ( this.isNotProject( project ) ) { return 0; }
-        // console.log( project );
 
         // <li class="flex-h-left gap-1 reveal fade-in pad-sides min-size debugB" id="project-1">
         //     <img src="./assets/images/dragVert.svg" alt="" class="icon-md hidden grab">
@@ -387,7 +377,6 @@ class PageBuilder {
     getHTML_Task( task ) {
         if ( this.isNotTask( task ) ) { return 0; }
 
-        console.log( task )
         // <li class="row flex-h-spread reorderable isIdle" id = "task-1">
         //     <button class="circle-button redbkg hidden">
         //         <img src="./assets/images/close.svg" alt="">

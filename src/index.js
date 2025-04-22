@@ -5,19 +5,17 @@ import { PageBuilder } from "./assets/modules/HTMLbuilder";
 const pageBuilder = new PageBuilder();
 let database = new Database();
 const storage = new Storage();
-// const converter = new Converter();
+
 const content = document.getElementById("content");
 
 const page = {
     UNKNOWN: 0,
     PROJECT: 1,
     TASK: 2,
-}
-
-let project
-
+};
 let currentPage = page.PROJECT;
-let leftSec;
+
+let project;
 let taskList;
 let gridUL;
 let hourUL;
@@ -28,11 +26,6 @@ let projects;
 let header;
 
 let reorderingTasks = true;
-
-const reorder = {
-    TASK:0,
-    PROJECT:1
-}
 
 const obj = {
     TASK:0,
@@ -46,17 +39,16 @@ let resizingBar;
 let resizingBarHTML="";
 let resizeLeft = 0;
 let resizeRight = 0;
-let minutePixels = 60
-
+let minutePixels = 1;
+let minutePixelDelta = 1;
 
 const dayStart = 0;
-let dayEnd = 24 * minutePixels;
 
 let startingDisplayHour = 4
 let newTaskStartingOffsetHour = 2;
 
-let gridStartTime = 0;
-let gridEndTime = 0;
+let gridStartTime = 24;
+let gridEndTime = 24;
 
 let snapRes = 15;
 let panning = false;
@@ -130,44 +122,10 @@ function fillInkwell() {
     });
 }
 
-function hoursToPixels( hrs ) { return hrs * minutePixels; }
-function pixelsToHour( pxl ) { return Math.floor( pxl / minutePixels ); }
 
-function timeToRawHours( t ) {
-    if( !( t instanceof Date ) ){
-        console.log("not a date");
-        return;
-    };
-    return Math.round( t/1000/60/60 );
-};
-
-function timeToRawMinutes( t ) {
-    if( !( t instanceof Date ) ){
-        console.log("not a date");
-        return;
-    };
-    return Math.round( t/1000/60 );
-};
-
-function timeToHours( t ) {
-    if( !( t instanceof Date ) ){
-        console.log("not a date");
-        return;
-    };
-    return t.getHours();
-};
-
-function getNewEndTime( start ) {
-    if( !( start instanceof Date) ){
-        console.log("not a date");
-        return;
-    };
-    let time = new Date();
-    let widthAsHours = Math.floor( ( gridUL.offsetWidth / 60 ) );
-
-    time.setTime( start.getTime() + (widthAsHours*60*60*1000) )
-    return time;
-};
+function hoursToMinutes( hrs ) { return hrs * 60; };
+function hoursToPixels( hrs ) { return hrs * 60 * minutePixels; }
+function pixelsToHour( pxl ) { return Math.floor( pxl / 60 / minutePixels ); }
 
 function setupHours(){
     hourUL.textContent = "";
@@ -175,10 +133,6 @@ function setupHours(){
     // let n = Math.ceil( gridUL.offsetWidth / minutePixels );
     let n = 24;
     console.log(`n hours: ${n}`)
-
-    // grid start time ==??
-    // wants to start at display hour
-    // 
     
     startingDisplayHour = Math.min( pixelsToHour( gridStartTime ), startingDisplayHour );
     console.log(`starting display hour: ${ startingDisplayHour }`)
@@ -194,6 +148,9 @@ function setupHours(){
 };
 
 function fillExistingTasks( id ) {
+
+    updateMinutePixelScale();
+
     console.log(`filling existing tasks!`)
     let proj = database.getProject( id );
     console.log( proj );
@@ -204,12 +161,7 @@ function fillExistingTasks( id ) {
         taskList.appendChild( taskHTML );
         gridUL.appendChild( barHTML );
         
-        pageBuilder.writeCSS_Resize_Task(
-            barHTML.querySelector(".bar"),
-            task.startMinute, task.endMinute,
-            gridStartTime,
-            gridEndTime
-        );
+        resizeBar( barHTML.querySelector(".bar"), task );
 
         taskHTML.querySelector( "button.delete" ).addEventListener( 'click', deleteTask )
         taskHTML.querySelector("button.switch-color").addEventListener( "click", switchColor );
@@ -291,7 +243,7 @@ function drawPage( pg, id ) {
             newProject.addEventListener( "click", createNewProject );
             fillExistingProjects();
             createListeners();
-
+            currentPage = page.PROJECT;
             break;
 
         case page.TASK:
@@ -300,7 +252,6 @@ function drawPage( pg, id ) {
             content.appendChild( pageBuilder.getHTML_ProjectPage() );
             content.appendChild( pageBuilder.getHTML_Inkwell() );
 
-            leftSec = document.getElementById( "left" );
             taskList = document.getElementById( "task-list" );
             gridUL = document.getElementById("grid");
             hourUL = document.getElementById("hour");
@@ -309,18 +260,13 @@ function drawPage( pg, id ) {
             const titleInput = document.getElementById( "active-title" )
             titleInput.value = database.getProject( id ).title;
 
-            dayEnd = hoursToPixels( 24 );
-
             updateMinutePixelScale();
 
-            // gridStartTime = hoursToPixels( startingDisplayHour );
-            console.log(`grid start: ${gridStartTime}`)
-            gridStartTime = 0;
+            gridStartTime = startingDisplayHour;
             gridStartTime = gridStartTime - Math.max(0, ( gridUL.offsetWidth - hoursToPixels( 24 ) ));
             gridStartTime = Math.max(0, gridStartTime );
             gridEndTime = Math.min( hoursToPixels( 24 ), gridUL.offsetWidth );
 
-            console.log(`gridStartTime: ${ gridStartTime } gridEndTime: ${ gridEndTime }`)
             setupHours();
 
             dialog = document.querySelector("dialog");
@@ -347,6 +293,7 @@ function drawPage( pg, id ) {
 
             fillExistingTasks( id );
 
+            currentPage = page.TASK;
             break;
         default:
             break;
@@ -360,20 +307,27 @@ function setup () {
 };
 
 function updateMinutePixelScale(){
-    minutePixels = 60;
+    // console.log( minutePixels );
+    // let oldMinutePixels = minutePixels;
+    minutePixels = 1;
 
-    if ( hoursToPixels(24) <= gridUL.offsetWidth ){
+    24*60
+    if ( hoursToMinutes( 24 ) <= gridUL.offsetWidth ){
         // NOT ENOUGH, SCALE!
         console.log(`adjusting minute pixels and snap res`)
 
         // FOR EACH TASK, ALSO SCALE THE START AND END!!
         
-        minutePixels = gridUL.offsetWidth / 24;
+        minutePixels = gridUL.offsetWidth / hoursToMinutes( 24 );
         gridStartTime = 0;
         gridEndTime = hoursToPixels(24);
     };
 
-    snapRes = minutePixels / 4;
+    snapRes = minutePixels * 15;
+    // minutePixelDelta = minutePixels / oldMinutePixels;
+    // console.log( `old min pixels: ${oldMinutePixels} new min pixels:${minutePixels}`)
+    // console.log( `minute Pixels Delta: ${minutePixelDelta}` );
+    console.log( `new minute pixels: ${minutePixels}, new snap Res: ${ snapRes }` );
 };
 
 function resize( e ) {
@@ -396,18 +350,47 @@ function resize( e ) {
     // endTime = getNewEndTime( startTime );
     setupHours();
     
-    if( currentPage == page.TASK ) {
-        const allTasks = project.getAll();
-        allTasks.forEach( task => {
+    // console.log( '***about to do it! tasks!')
+    // console.log( `current page ${currentPage}, / ${page.TASK}`)
+    
+    const allTasks = project.getAll();
+    allTasks.forEach( task => {
+        // task.startMinute = task.startMinute * minutePixelDelta;
+        // task.endMinute = task.endMinute * minutePixelDelta;
+        if( currentPage === page.TASK ) {
             const HTML = document.getElementById( `bar-${ task.id }` );
-            pageBuilder.writeCSS_Resize_Task(
-                HTML,
-                task.startMinute, task.endMinute,
-                gridStartTime,
-                gridEndTime
-            );
-        });
-    }
+            resizeBar( HTML, task );
+        };
+    });
+
+    // RESIZING THE WINDOW CHANGES THE TIME OF EACH TASK!!
+    // RESIZING THE WINDOW CHANGES THE TIME OF EACH TASK!!
+    // RESIZING THE WINDOW CHANGES THE TIME OF EACH TASK!!
+    // RESIZING THE WINDOW CHANGES THE TIME OF EACH TASK!!
+    // RESIZING THE WINDOW CHANGES THE TIME OF EACH TASK!!
+    // RESIZING THE WINDOW CHANGES THE TIME OF EACH TASK!!
+
+
+    // if( currentPage === page.TASK ) {
+    //     console.log( '----resizing all the tasks!')
+    //     const allTasks = project.getAll();
+    //     allTasks.forEach( task => {
+
+    //         console.log( 'task!!');
+    //         console.log( task );
+
+    //         task.startMinute = task.startMinute * minutePixelDelta;
+    //         task.endMinute = task.endMinute * minutePixelDelta;
+
+    //         const HTML = document.getElementById( `bar-${ task.id }` );
+    //         pageBuilder.writeCSS_Resize_Task(
+    //             HTML,
+    //             task.startMinute, task.endMinute,
+    //             gridStartTime,
+    //             gridEndTime
+    //         );
+    //     });
+    // };
 
 };
 
@@ -537,24 +520,28 @@ function initDraggableItem() {
         draggableItem[ obj.BARS  ].classList.remove("is-idle");
         draggableItem[ obj.BARS  ].classList.add("is-dragging");
     }
-
-    // Object.values( obj ).forEach( el => {
-    //     draggableItem[ el ].classList.remove("is-idle");
-    //     draggableItem[ el ].classList.add("is-dragging");
-    // });
 };
 
 // DRAG
 const drag = ( e ) => {
-    // console.log(`draggggging!!`);
+    console.log(`draggggging!!`);
+    // console.log( e.buttons );
     
+    // PROTECTS AGAINST 'STICKY' DRAGS
+    if ( e.buttons < 1 ) {
+        dragEnd();
+        return;
+    }
+
+    // CHECK IF OUTSIDE THE BOUNDS OF THE WINDOW
+    if ( !e.clientX || !e.clientY ) {
+        dragEnd();
+        return;
+    };
+
     if( draggableItem[ obj.TASK ]) {
         e.preventDefault();
-    
-        if ( !e.clientX || !e.clientY ) {
-            dragEnd();
-            return;
-        };
+        
         const clientX = e.clientX || e.touches[0].clientX;
         const clientY = e.clientY || e.touches[0].clientY;
     
@@ -568,6 +555,7 @@ const drag = ( e ) => {
         
         updateIdleItemsStateAndPosition( );
     };
+
     if( resizingBar ){
 
         e.preventDefault();
@@ -576,33 +564,52 @@ const drag = ( e ) => {
         const clientY = e.clientY || e.touches[0].clientY;
 
         const pointerOffsetX = clientX - pointerStartX;
-        console.log( `pointeroffset: ${ pointerOffsetX }` )
-        const snap = Math.sign( pointerOffsetX ) * Math.floor( Math.abs(pointerOffsetX)/snapRes)*15;
-
+        // console.log( `pointeroffset: ${ pointerOffsetX }` )
+        const snap = Math.sign( pointerOffsetX ) * Math.floor( Math.abs( pointerOffsetX )/ snapRes )* snapRes;
+        const snapMin = Math.sign( pointerOffsetX ) * 15;
+        
         if ( Math.abs( snap ) > 0 ) {
-            resizingBar.startMinute += resizeLeft * ( snap );
-            resizingBar.endMinute += resizeRight * ( snap );
+            console.log( `snap!! ${ snap }`)
+            resizingBar.startMinute += resizeLeft * ( snapMin );
+            resizingBar.endMinute += resizeRight * ( snapMin );
 
             if ( resizingBar.endMinute - resizingBar.startMinute <= 0 ) {
-                resizingBar.startMinute -= resizeLeft * ( snap );
-                resizingBar.endMinute -= resizeRight * ( snap );
-            }
-            pointerStartX = clientX;
+                resizingBar.startMinute -= resizeLeft * ( snapMin );
+                resizingBar.endMinute -= resizeRight * ( snapMin );
+            };
 
-            pageBuilder.writeCSS_Resize_Task(
-                resizingBarHTML,
-                resizingBar.startMinute, resizingBar.endMinute,
-                gridStartTime,
-                gridEndTime
-            );
+            if ( resizingBar.startMinute < 0 ) {
+                console.log( `NEW TIME: clamping at 0`)
+                const dif = resizingBar.startMinute;
+                resizingBar.startMinute = 0;
+                resizingBar.endMinute -=  resizeRight * dif;
+            };
+
+            console.log( `NEW TIME: upperbound: ${hoursToMinutes( 24 )}`);
+
+
+            if ( resizingBar.endMinute >= hoursToMinutes( 24 ) ) {
+                console.log( `NEW TIME: clamping at ${ hoursToMinutes( 24 )}`)
+
+                const dif = resizingBar.endMinute - hoursToMinutes( 24 );
+                resizingBar.startMinute -= resizeLeft * dif;
+                resizingBar.endMinute = hoursToMinutes( 24 );
+            };
+
+            console.log( `NEW TIME: startingMin: ${resizingBar.startMinute} endingMin: ${resizingBar.endMinute}`)
+
+            pointerStartX = clientX;
+            
+            resizeBar( resizingBarHTML, resizingBar );
             updateDuration( resizingBar );
+            writeToStorage();
         };
 
     };
 
+    // TRIGGERS WHEN PANNING THE GRID OF TASKS
     if ( panning ){
         const clientX = e.clientX || e.touches[0].clientX;
-        // const clientY = e.clientY || e.touches[0].clientY;
 
         const pointerOffsetX = clientX - pointerStartX;
         
@@ -624,69 +631,26 @@ const drag = ( e ) => {
 
         allTasks.forEach( task => {
             const HTML = document.getElementById( `bar-${ task.id }` );
-            
-            pageBuilder.writeCSS_Resize_Task(
-                HTML,
-                task.startMinute, task.endMinute,
-                gridStartTime,
-                gridEndTime
-            );
+            resizeBar( HTML, task );
         });
 
         const allHours = hourUL.querySelectorAll("li");
-        const firstID = parseInt( allHours[0].id );
-        const firstHr = parseInt( allHours[0].textContent );
-        const lastID = parseInt( allHours[ allHours.length - 1 ].id );
-        const lastHr = parseInt( allHours[ allHours.length - 1 ].textContent );
 
         allHours.forEach( hr => {
-            
-        //     if( parseInt( hr.id ) > gridEndTime+5 ) {
-        //         //put in front!
-        //         console.log( `moving to front ${hr.id}` );
-        //         hr.id = firstID - minutePixels;
-                
-        //         let newHour = firstHr - 1;
-        //         if( newHour < 0 ) { newHour = 23; };
-        //         hr.textContent = newHour;
-
-        //         console.log( `new id ${hr.id}` );
-        //         hourUL.prepend( hr );
-
-        //     } else  if ( parseInt( hr.id ) < gridStartTime-5 ) {
-        //         // put to end!!
-        //         console.log( `moving to back ${ hr.id }` );
-        //         console.log( hr );
-
-        //         hr.id = lastID + minutePixels;
-                
-        //         let newHour = lastHr + 1;
-        //         if( newHour > 23 ) { newHour = 0; };
-        //         hr.textContent = newHour;
-
-        //         console.log( `new id ${hr.id}` );
-        //         hourUL.appendChild( hr );
-        //     };
-
             pageBuilder.writeCSS_Hour( hr, hr.id, gridStartTime )
-
         });
     };
-
-
-
 };
 
 // UPDATES THE VISUAL DURATION OF A TASK
 function updateDuration( task ) {
     const HTML = document.getElementById( `task-${task.id}` );
     HTML.querySelector( ".time" ).textContent = task.duration;
-}
+};
 
 function updateIdleItemsStateAndPosition(){
     const draggableItemRect = draggableItem[ obj.TASK ].getBoundingClientRect();
     const draggableItemY = draggableItemRect.top + draggableItemRect.height / 2;
-
 
     Object.values( obj ).forEach( el => {
 
@@ -721,17 +685,7 @@ function updateIdleItemsStateAndPosition(){
             });
         };
     });
-    
-    // DUPLICATE??? vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-    // // UPDATE POSITIONS
-    // getIdleItems( obj.TASK ).forEach( (item) => {
-    //     if( isItemToggled( item ) ) {
-    //         const direction = isItemAbove(item) ? 1 : -1;
-    //         item.style.transform = `translateY( ${ direction * (draggableItemRect.height + itemsGap)}px)`;
-    //     } else {
-    //         item.style.transform = '';
-    //     };
-    // });
+
 };
 
 // DRAG END
@@ -1178,15 +1132,22 @@ function createNewProject( e ) {
     writeToStorage();
 };
 
+function resizeBar( HTML, task ) {
+    
+    pageBuilder.writeCSS_Resize_Task(
+        HTML,
+        task.startMinute * minutePixels,
+        task.endMinute * minutePixels,
+        gridStartTime,
+        gridEndTime
+    );
+};
+
 function createNewTask( e ) {
-    console.log("new task!")
-    console.log( `startTime ${ gridStartTime }` )
-    console.log( `endTime ${ gridEndTime }` )
+    const startMinute = hoursToMinutes( gridStartTime + newTaskStartingOffsetHour );
+    const endMinute = startMinute + hoursToMinutes( 1 + Math.floor(Math.random() * 3 ) );
 
-    const startMinute = gridStartTime + hoursToPixels( newTaskStartingOffsetHour );
-    const endMinute = startMinute + hoursToPixels( 1 + Math.floor(Math.random() * 3 ) );
-
-    console.log( `task--startMinute: ${startMinute} endMinute: ${endMinute}` );
+    console.log( `task--startMinute: ${ startMinute } endMinute: ${ endMinute }` );
     let task = new Task();
 
     task.startMinute = startMinute;
@@ -1197,16 +1158,12 @@ function createNewTask( e ) {
 
     const taskHTML = pageBuilder.getHTML_Task( task );
     taskList.appendChild( taskHTML );
+
     const barHTML = pageBuilder.getHTML_Bar( task );
+
     gridUL.appendChild( barHTML );
 
-    // console.log( `gridstart, task start ${task.start}`)
-    pageBuilder.writeCSS_Resize_Task(
-        barHTML.querySelector(".bar"),
-        task.startMinute, task.endMinute,
-        gridStartTime,
-        gridEndTime
-    );
+    resizeBar( barHTML.querySelector(".bar"), task );
     
     const checkInput = taskHTML.querySelector("input.done");
     checkInput.addEventListener( 'change', toggleTaskComplete );

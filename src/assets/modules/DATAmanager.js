@@ -23,7 +23,6 @@ class Task {
         "invert(16%) sepia(100%) saturate(4269%) hue-rotate(327deg) brightness(85%) contrast(113%)"
     ];
 
-
     taskID = -1;
     title = "New Row Title";
     priority = 0;
@@ -63,6 +62,11 @@ class Task {
     set title (val) { if ( typeof val == 'string' ){  this.title = val; }; };
     get title () { return this.title; };
 
+    // CURRENTLY IT KEEPS TRACK OF EACH "PIXEL MINUTE"
+    // WHICH IS DEPENDENT ON WINDOW RESOLUTION
+    // REWORKED TO A FIXED TIME BASED ON SNAP
+    // THIS NEEDS TO BE REWORKED TO A 1:1 MINUTE
+
     set startMinute (val) { if ( typeof val == 'number' ){
         console.log(`writing start time! time is ${ val }`)
         this.startMin = val; }; };
@@ -85,10 +89,9 @@ class Task {
     get endMinute () { return this.endMin; };
 
     get duration () {
-        // let sec = this.endMin - this.startMin;
-        let min = Math.floor(this.endMin - this.startMin );
-        return `${min}m`;
-    }
+        let min = Math.floor( this.endMin - this.startMin );
+        return `${ min }m`;
+    };
 
     set priority (val) { if (typeof val == 'number' ){
         val = max( 0, min( val, this.priorityColors.length - 1 ) );
@@ -234,17 +237,6 @@ class Database {
     };
 
     getAll() { return this.database; }
-    
-    // writeAll( db ) {
-    //     if( db < 0 ){
-    //         this.database = [];
-    //         return;
-    //     }
-    //     if( db ) {
-    //         this.database = db;
-    //     };
-    //     this.database = [];
-    // };
 
     reOrderTask( proj, newId) {
         console.log( `updating proj ${proj.title} from id ${proj.id} to ${newId} `)
@@ -271,23 +263,13 @@ class Database {
 
 class Storage {
     DB_NAME = "mainDB";
-    // localDB;
 
     writeAllStorage( data ){
         console.log( data );
         localStorage.setItem("mainDB", JSON.stringify( data ));
-        // let pulled = localStorage.getItem( "mainDB" )
-        // pulled = JSON.parse( pulled );
     };
 
     hydrate( json ) {
-        // >DB
-        // .>PROJ
-        // ..>TASK
-        // ..>TASK
-        // .>PROJ
-        // ..>TASK
-        // ..>TASK
 
         let data = new Database();
 
